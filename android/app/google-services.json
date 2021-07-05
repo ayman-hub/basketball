@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "122169779846",
+    "firebase_url": "https://hi-market-project.firebaseio.com",
+    "project_id": "hi-market-project",
+    "storage_bucket": "hi-market-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122169779846:android:6abb9a1b9f50d41d9b1307",
+        "android_client_info": {
+          "package_name": "com.EraMint.hi_market"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "122169779846-poh6cnto33egmq58q0o2tijj3bsthumj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.EraMint.hi_market",
+            "certificate_hash": "f7fdc500d96f0e74ee0430b3a7126b7d631768f3"
+          }
+        },
+        {
+          "client_id": "122169779846-dls92l0nfrb321sudhdob41elto7bco2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJM-qgBSKJ9WSLQABjZ5W7B-mg0m7d9WI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "122169779846-dls92l0nfrb321sudhdob41elto7bco2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
