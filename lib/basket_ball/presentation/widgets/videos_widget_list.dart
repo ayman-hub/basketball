@@ -1,17 +1,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hi_market/basket_ball/data/data_sources/constant_data.dart';
 import 'package:hi_market/basket_ball/domain/entities/get_home_page_videos_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/get_videos_screen_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/response_failure.dart';
 import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/get_watch_web_two_widget.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/video_app.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/youtube_watch_widget.dart';
 import 'package:video_player/video_player.dart';
 import '../../../injection.dart';
 import '../../../toast_utils.dart';
 import 'get_watch_web_widget.dart';
 import 'loading_widget.dart';
+import 'package:video_player/video_player.dart';
 
 
 class VideosWidgetList extends StatefulWidget {
@@ -127,7 +130,12 @@ class _VideosWidgetListState extends State<VideosWidgetList> {
                           Container(
                               padding: EdgeInsets.all(10),
                               height: MediaQuery.of(context).size.height / 3,
-                              child: e.videoType == VideoType.youtube?GetWatchWebWidget(e.attachmentUrl):GetWatchWebTwoWidget(e.attachmentUrl)),
+                              child: e.videoType == VideoType.youtube?InkWell(
+                                  onTap: (){
+                                    print("pressed");
+                                    Get.to(YoutubeWatchPage(url: e.attachmentUrl),transition: Transition.fadeIn);
+                                  },
+                                  child: Image.network(youTubeImage(e.attachmentUrl)))/*GetWatchWebWidget(e.attachmentUrl)*/:ChewieListItem(videoPlayerController:VideoPlayerController.network(e.attachmentUrl))),
                           Container(
                             margin: EdgeInsets.all(10),
                             alignment: Alignment.center,

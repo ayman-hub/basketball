@@ -1458,7 +1458,12 @@ class _MainPageState extends State<MainPage> {
                                 Container(
                                     padding: EdgeInsets.all(10),
                                     height: MediaQuery.of(context).size.height / 3,
-                                    child:e.videoType == VideoType.youtube?GetWatchWebWidget(e.link): GetWatchWebTwoWidget(e.link)),
+                                    child:e.videoType == VideoType.youtube?InkWell(
+                              onTap: (){
+                              print("pressed");
+                              Get.to(YoutubeWatchPage(url: e.link),transition: Transition.fadeIn);
+                              },
+                              child: Image.network(youTubeImage(e.link)))/*GetWatchWebWidget(e.attachmentUrl)*/:ChewieListItem(videoPlayerController:VideoPlayerController.network(e.link))),
                                 Container(
                                   margin: EdgeInsets.all(10),
                                   alignment: Alignment.center,

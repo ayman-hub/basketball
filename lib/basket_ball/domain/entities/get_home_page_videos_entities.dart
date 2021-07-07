@@ -50,7 +50,7 @@ class Data {
         final startIndex = str.indexOf(start);
         final endIndex = str.indexOf(end, startIndex + start.length);
         print(str.substring(startIndex + start.length, endIndex));*/
-        link  = str.replaceAll("watch?v=","embed/");;
+        link  = str;//str.replaceAll("watch?v=","embed/");;
       } else {
         videoType = VideoType.video;
         link = json['link'].toString();

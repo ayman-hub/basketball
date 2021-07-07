@@ -86,7 +86,7 @@ class Videos {
         final startIndex = str.indexOf(start);
         final endIndex = str.indexOf(end, startIndex + start.length);
         print(str.substring(startIndex + start.length, endIndex));*/
-        attachmentUrl = str.replaceAll("watch?v=","embed/");
+        attachmentUrl = str;//str.replaceAll("watch?v=","embed/");
       } else {
         videoType = VideoType.video;
         attachmentUrl = json['link'].toString();

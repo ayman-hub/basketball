@@ -16,6 +16,13 @@ import '../../../toast_utils.dart';
 
 
 const Color staticColor = Color(0xffE31E24);
+//const youTubeImage = 'http://i3.ytimg.com/vi/1yhxY6k-AOg/hqdefault.jpg';
+
+String youTubeImage(String url){
+  String b  = url.split('v=').last;
+  print(b.split('&').first);
+  return 'http://i3.ytimg.com/vi/${b}/hqdefault.jpg';
+}
 
 enum ShowCompetition {
   showFirstCompetitionList,
@@ -26,6 +33,7 @@ enum RoleType { Judge, Guest }
 enum matchType { start, end, result , note , report}
 
 enum refereeType { main, edit, report }
+
 
 DateTime refactorDate(String date) {
   if (date.toString() != "null" && date.toString() != "") {
