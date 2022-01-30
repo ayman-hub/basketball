@@ -1,3 +1,5 @@
+import 'package:hi_market/basket_ball/domain/entities/get_home_page_videos_entities.dart';
+
 class GetSingleTeamVideosEntities {
   String status;
   String message;
@@ -32,12 +34,36 @@ class Data {
   String title;
   String attachmentUrl;
 
+  VideoType videoType;
+
   Data({this.id, this.title, this.attachmentUrl});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     title = json['title'].toString();
-    attachmentUrl = json['attachment_url'].toString();
+    //attachmentUrl = json['attachment_url'].toString();
+    String str = json['link'].toString();
+    try{
+      print('link::::: ${str}');
+      if (str.toLowerCase().contains("youtu")) {
+        videoType = VideoType.youtube;
+        print('youtube::::::: ${title}');
+        /*String start = "http";
+        String end = '\"';
+        final startIndex = str.indexOf(start);
+        final endIndex = str.indexOf(end, startIndex + start.length);
+        print(str.substring(startIndex + start.length, endIndex));*/
+        attachmentUrl  = str;//str.replaceAll("watch?v=","embed/");;
+      } else {
+        videoType = VideoType.video;
+        print('video:::::: ${title}');
+        attachmentUrl = json['link'].toString();
+      }
+    }catch(e){
+      print("error: $e");
+      videoType = VideoType.video;
+      attachmentUrl = json['link'].toString();
+    }
   }
 
   Map<String, dynamic> toJson() {

@@ -109,7 +109,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       },
                       style: TextStyle(fontSize: 15.0),
                       decoration: InputDecoration(
-                          hintText: "البريد الالكتروني",
+                          hintText: "اسم المستخدم",
                           contentPadding:
                               EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                           border: OutlineInputBorder(

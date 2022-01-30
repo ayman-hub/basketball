@@ -1,7 +1,10 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+
+
 import 'package:get/get.dart';
+import 'package:hi_market/basket_ball/data/data_sources/constant_data.dart';
+import 'package:hi_market/basket_ball/domain/entities/get_home_page_videos_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/get_single_player_data_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/get_videos_screen_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/response_failure.dart';
@@ -12,24 +15,30 @@ import 'package:hi_market/basket_ball/domain/entities/single_team_videos_entitie
 import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
 import 'package:hi_market/basket_ball/presentation/pages/nadi.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/video_app.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/youtube_watch_widget.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../injection.dart';
 import '../../../res.dart';
 import '../../../toast_utils.dart';
+import 'TileWidget.dart';
+import 'loading_widget.dart';
+import 'main_page/get_youtube_list_widget.dart';
 
 class NadiWidget extends StatefulWidget {
   NadiWidget(
       {Key key,
       @required this.name,
       @required this.showBoolean,
-      @required this.teamID, this.logo})
+      @required this.teamID, this.logo,  this.onChanged,})
       : super(key: key);
   String name;
   showDataBoolean showBoolean;
   String teamID;
   String logo;
+  ValueChanged<bool> onChanged;
+  Function isActiveMethod ;
 
   @override
   _NadiWidgetState createState() {
@@ -46,6 +55,9 @@ class _NadiWidgetState extends State<NadiWidget> {
   SingleTeamRelatedAlbumsEntities getAlbumScreenEntities = SingleTeamRelatedAlbumsEntities(data: List());
   GetSingleTeamStaffDataEntities getSingleTeamStaffDataEntities =
       GetSingleTeamStaffDataEntities(data: List());
+
+  bool showProgress = false;
+
 
   getData() async {
 
@@ -166,424 +178,365 @@ class _NadiWidgetState extends State<NadiWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 50),
-        child: Column(
-          children: [
-            ListTile(
-              leading: widget.logo != null ?Container(
-                width: 50,
-                child: Image.network(widget.logo),
-              ):Container(
-                height: 50,
-                width: 10,
-                color: Colors.red,
-              ),
-              title: Text(
-                "${widget.name}",
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600),
-              ),
-              trailing: widget.showBoolean.showNadi
-                  ? Icon(Icons.keyboard_arrow_down)
-                  : Icon(Icons.arrow_forward_ios),
-            ),
-            widget.showBoolean.showNadi
-                ? Container(
-                    height: MediaQuery.of(context).size.height / 1.5,
-                    child: ListView(
-                      children: [
-                        Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 50),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  onTap: ()async{
-                                    if(getSingleTeamPlayersDataEntities.status == null){
-                                      ProgressDialog dialog =
-                                          ProgressDialog(context);
-                                      dialog.show();
-                                      var response = await sl<Cases>()
-                                          .singleTeamPlayersData(
+    return Stack(
+      children: [
+        Directionality(
+          textDirection: TextDirection.rtl,
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 50),
+            child: Column(
+              children: [
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: ListTile(
+                    leading: widget.logo != null ?Container(
+                      width: 50,
+                      child: Image.network(widget.logo),
+                    ):Container(
+                      height: 50,
+                      width: 10,
+                      color: Colors.red,
+                    ),
+                    title: Text(
+                      "${widget.name}",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+             SizedBox(height: 20,),
+             Container(
+                        height: MediaQuery.of(context).size.height / 1.5,
+                        child: ListView(
+                          children: [
+                            Directionality(
+                              textDirection: TextDirection.rtl,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 50),
+                                child: Column(
+                                  children: [
+                                    InkWell(
+                                      onTap: ()async{
+                                        if(getSingleTeamPlayersDataEntities.status == null){
+                                          setState(() {
+                                            showProgress =true;
+                                          });
+                                          var response = await sl<Cases>()
+                                              .singleTeamPlayersData(
+                                                  widget.teamID);
+                                          setState(() {
+                                            showProgress =false;
+                                          });
+                                          if (response
+                                              is GetSingleTeamPlayersDataEntities) {
+                                            setState(() {
+                                              getSingleTeamPlayersDataEntities =
+                                                  response;
+                                              widget.showBoolean.showListPlayer =
+                                                  !widget
+                                                      .showBoolean.showListPlayer;
+                                              if (widget.showBoolean.showAlbums) {
+                                                widget.showBoolean.showAlbums =
+                                                    !widget.showBoolean.showAlbums;
+                                              }
+                                              if (widget.showBoolean.showVideos) {
+                                                widget.showBoolean.showVideos =
+                                                    !widget.showBoolean.showVideos;
+                                              }
+                                              if (widget
+                                                  .showBoolean.showAtchivements) {
+                                                widget.showBoolean
+                                                        .showAtchivements =
+                                                    !widget.showBoolean
+                                                        .showAtchivements;
+                                              }
+                                              if (widget.showBoolean.showPlayers) {
+                                                widget.showBoolean.showPlayers =
+                                                    !widget.showBoolean.showPlayers;
+                                              }
+                                              if (widget.showBoolean.showDevice) {
+                                                widget.showBoolean.showDevice =
+                                                    !widget.showBoolean.showDevice;
+                                              }
+                                              widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                  .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
+                                            });
+                                          } else if (response
+                                              is ResponseModelFailure) {
+                                            ResponseModelFailure failure = response;
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
+                                                    messageText: Text(
+                                                      response.message,
+                                                      textAlign: TextAlign.center,
+                                                    ))
+                                                : showToast(
+                                                    context, failure.message);
+                                          } else if (response == null) {
+
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
+                                                    messageText: Text(
+                                                      "Connection Error",
+                                                      textAlign: TextAlign.center,
+                                                    ))
+                                                : showToast(
+                                                    context, "Connection Error");
+                                          }
+                                        }else{
+                                          setState(() {
+                                            widget.showBoolean.showListPlayer =
+                                            !widget
+                                                .showBoolean.showListPlayer;
+                                            if (widget.showBoolean.showAlbums) {
+                                              widget.showBoolean.showAlbums =
+                                              !widget.showBoolean.showAlbums;
+                                            }
+                                            if (widget.showBoolean.showVideos) {
+                                              widget.showBoolean.showVideos =
+                                              !widget.showBoolean.showVideos;
+                                            }
+                                            if (widget
+                                                .showBoolean.showAtchivements) {
+                                              widget.showBoolean
+                                                  .showAtchivements =
+                                              !widget.showBoolean
+                                                  .showAtchivements;
+                                            }
+                                            if (widget.showBoolean.showPlayers) {
+                                              widget.showBoolean.showPlayers =
+                                              !widget.showBoolean.showPlayers;
+                                            }
+                                            if (widget.showBoolean.showDevice) {
+                                              widget.showBoolean.showDevice =
+                                              !widget.showBoolean.showDevice;
+                                            }
+                                            widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
+                                          });
+                                        }
+                                      },
+                                      child: TileWidget(
+                                        "قائمه اللاعبين",
+                                      ),
+                                    ),
+                                    widget.showBoolean.showListPlayer &&getSingleTeamPlayersDataEntities.data.length == 0 ?getNoDataWidget() :Column(
+                                      children: [
+                                        ...getSingleTeamPlayersDataEntities.data.map((e) => widget.showBoolean.showListPlayer ? Container(
+                                          height: 100,
+                                          child:CardWidget(imageLink: e.thumb,position: e.title,)
+                                        ): Container()).toList()
+                                      ],
+                                    )
+                                        ,
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Directionality(
+                              textDirection: TextDirection.rtl,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 50),
+                                child: Column(
+                                  children: [
+                                    InkWell(
+                                      onTap: ()async{
+                                        if(getSingleTeamStaffDataEntities.status == null){
+                                          setState(() {
+                                            showProgress =true;
+                                          });
+                                          var response = await sl<Cases>()
+                                              .singleTeamStaffData(
                                               widget.teamID);
-                                      dialog.hide();
-                                      if (response
-                                          is GetSingleTeamPlayersDataEntities) {
-                                        dialog.hide();
-                                        setState(() {
-                                          getSingleTeamPlayersDataEntities =
-                                              response;
-                                          widget.showBoolean.showListPlayer =
-                                              !widget
-                                                  .showBoolean.showListPlayer;
-                                          if (widget.showBoolean.showAlbums) {
-                                            widget.showBoolean.showAlbums =
-                                                !widget.showBoolean.showAlbums;
-                                          }
-                                          if (widget.showBoolean.showVideos) {
-                                            widget.showBoolean.showVideos =
-                                                !widget.showBoolean.showVideos;
-                                          }
-                                          if (widget
-                                              .showBoolean.showAtchivements) {
-                                            widget.showBoolean
-                                                    .showAtchivements =
-                                                !widget.showBoolean
-                                                    .showAtchivements;
-                                          }
-                                          if (widget.showBoolean.showPlayers) {
-                                            widget.showBoolean.showPlayers =
-                                                !widget.showBoolean.showPlayers;
-                                          }
-                                          if (widget.showBoolean.showDevice) {
-                                            widget.showBoolean.showDevice =
-                                                !widget.showBoolean.showDevice;
-                                          }
-                                        });
-                                      } else if (response
+                                          setState(() {
+                                            showProgress =false;
+                                          });
+                                          if (response
+                                          is GetSingleTeamStaffDataEntities) {
+
+                                            setState(() {
+                                              getSingleTeamStaffDataEntities =
+                                                  response;
+                                              widget.showBoolean.showDevice =
+                                              !widget.showBoolean.showDevice;
+                                              if (widget.showBoolean.showAlbums) {
+                                                widget.showBoolean.showAlbums = !widget.showBoolean.showAlbums;
+                                              }
+                                              if (widget.showBoolean.showVideos) {
+                                                widget.showBoolean.showVideos = !widget.showBoolean.showVideos;
+                                              }
+                                              if (widget.showBoolean.showAtchivements) {
+                                                widget.showBoolean.showAtchivements = !widget.showBoolean.showAtchivements;
+                                              }
+                                              if (widget.showBoolean.showPlayers) {
+                                                widget.showBoolean.showPlayers = !widget.showBoolean.showPlayers;
+                                              }
+                                              if (widget.showBoolean.showListPlayer) {
+                                                widget.showBoolean.showListPlayer = !widget.showBoolean.showListPlayer;
+                                              }
+                                              widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                  .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
+                                            });
+                                          } else if (response
                                           is ResponseModelFailure) {
-                                        dialog.hide();
-                                        ResponseModelFailure failure = response;
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
+
+                                            ResponseModelFailure failure = response;
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
                                                 messageText: Text(
                                                   response.message,
                                                   textAlign: TextAlign.center,
                                                 ))
-                                            : showToast(
+                                                : showToast(
                                                 context, failure.message);
-                                      } else if (response == null) {
-                                        dialog.hide();
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
+                                          } else if (response == null) {
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
                                                 messageText: Text(
                                                   "Connection Error",
                                                   textAlign: TextAlign.center,
                                                 ))
-                                            : showToast(
+                                                : showToast(
                                                 context, "Connection Error");
-                                      }
-                                    }else{
-                                      setState(() {
-                                        widget.showBoolean.showListPlayer =
-                                        !widget
-                                            .showBoolean.showListPlayer;
-                                        if (widget.showBoolean.showAlbums) {
-                                          widget.showBoolean.showAlbums =
-                                          !widget.showBoolean.showAlbums;
+                                          }
+                                        }else {
+                                          setState(() {
+                                            widget.showBoolean.showDevice =
+                                            !widget.showBoolean.showDevice;
+                                            if (widget.showBoolean.showAlbums) {
+                                              widget.showBoolean.showAlbums =
+                                              !widget.showBoolean.showAlbums;
+                                            }
+                                            if (widget.showBoolean.showVideos) {
+                                              widget.showBoolean.showVideos =
+                                              !widget.showBoolean.showVideos;
+                                            }
+                                            if (widget.showBoolean
+                                                .showAtchivements) {
+                                              widget.showBoolean.showAtchivements =
+                                              !widget.showBoolean.showAtchivements;
+                                            }
+                                            if (widget.showBoolean.showPlayers) {
+                                              widget.showBoolean.showPlayers =
+                                              !widget.showBoolean.showPlayers;
+                                            }
+                                            if (widget.showBoolean.showListPlayer) {
+                                              widget.showBoolean.showListPlayer =
+                                              !widget.showBoolean.showListPlayer;
+                                            }
+                                            widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
+                                          });
                                         }
-                                        if (widget.showBoolean.showVideos) {
-                                          widget.showBoolean.showVideos =
-                                          !widget.showBoolean.showVideos;
-                                        }
-                                        if (widget
-                                            .showBoolean.showAtchivements) {
-                                          widget.showBoolean
-                                              .showAtchivements =
-                                          !widget.showBoolean
-                                              .showAtchivements;
-                                        }
-                                        if (widget.showBoolean.showPlayers) {
-                                          widget.showBoolean.showPlayers =
-                                          !widget.showBoolean.showPlayers;
-                                        }
-                                        if (widget.showBoolean.showDevice) {
-                                          widget.showBoolean.showDevice =
-                                          !widget.showBoolean.showDevice;
-                                        }
-                                      });
-                                    }
-                                  },
-                                  leading: Container(
-                                    width: 10,
-                                    height: 50,
-                                    color: Colors.red,
-                                  ),
-                                  title: Text(
-                                    "قائمه اللاعبين",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  trailing: widget.showBoolean.showListPlayer
-                                      ? Icon(Icons.keyboard_arrow_down)
-                                      : Icon(Icons.arrow_forward_ios),
-                                ),
-                                ...getSingleTeamPlayersDataEntities.data.map((e) => widget.showBoolean.showListPlayer
-            ? Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment
-                                        .spaceBetween,
-                                    children: [
-                                      Flexible(
-                                        child: Container(
-                                          height: MediaQuery.of(
-                                              context)
-                                              .size
-                                              .height /
-                                              5,
-                                          child: Image.network(e.thumb),
-                                        ),
+                                      },
+                                      child: TileWidget(
+                                        "الجهاز الفنى",
                                       ),
-                                      Expanded(
-                                          flex: 2,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment
-                                                .center,
-                                            children: [
-                                              Text(
-                                                "${e.title}",
-                                                style: TextStyle(
-                                                    color: Colors
-                                                        .black,
-                                                    fontSize: 25,
-                                                    fontWeight:
-                                                    FontWeight
-                                                        .bold),
-                                              ),
-                                              SizedBox(
-                                                height: 20,
-                                              ),
-                                              Text(
-                                                "",
-                                                style: TextStyle(
-                                                    color: Colors
-                                                        .grey),
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              Text(
-                                                "",
-                                                style: TextStyle(
-                                                    color: Colors
-                                                        .grey),
-                                              ),
-                                            ],
-                                          )),
+                                    ),
+                                    widget.showBoolean.showDevice && getSingleTeamStaffDataEntities.data.length == 0?getNoDataWidget():  Column(
+                                    children: [
+                                      ...getSingleTeamStaffDataEntities.data.map((e) => widget.showBoolean.showDevice
+                                          ?  Container(
+                                        height: 100,
+                                        child: CardWidget(position: e.position,imageLink: e.thumb,title: e.title,),
+                                      ):Container()).toList()
                                     ],
                                   ),
-                                ): Container()).toList()
-                                    ,
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 50),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  onTap: ()async{
-                                    if(getSingleTeamStaffDataEntities.status == null){
-                                      ProgressDialog dialog =
-                                      ProgressDialog(context);
-                                      dialog.show();
-                                      var response = await sl<Cases>()
-                                          .singleTeamStaffData(
-                                          widget.teamID);
-                                      dialog.hide();
-                                      if (response
-                                      is GetSingleTeamStaffDataEntities) {
-                                        dialog.hide();
-                                        setState(() {
-                                          getSingleTeamStaffDataEntities =
-                                              response;
-                                          widget.showBoolean.showDevice =
-                                          !widget.showBoolean.showDevice;
-                                          if (widget.showBoolean.showAlbums) {
-                                            widget.showBoolean.showAlbums = !widget.showBoolean.showAlbums;
-                                          }
-                                          if (widget.showBoolean.showVideos) {
-                                            widget.showBoolean.showVideos = !widget.showBoolean.showVideos;
-                                          }
-                                          if (widget.showBoolean.showAtchivements) {
-                                            widget.showBoolean.showAtchivements = !widget.showBoolean.showAtchivements;
-                                          }
-                                          if (widget.showBoolean.showPlayers) {
-                                            widget.showBoolean.showPlayers = !widget.showBoolean.showPlayers;
-                                          }
-                                          if (widget.showBoolean.showListPlayer) {
-                                            widget.showBoolean.showListPlayer = !widget.showBoolean.showListPlayer;
-                                          }
-                                        });
-                                      } else if (response
-                                      is ResponseModelFailure) {
-                                        dialog.hide();
-                                        ResponseModelFailure failure = response;
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                            messageText: Text(
-                                              response.message,
-                                              textAlign: TextAlign.center,
-                                            ))
-                                            : showToast(
-                                            context, failure.message);
-                                      } else if (response == null) {
-                                        dialog.hide();
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                            messageText: Text(
-                                              "Connection Error",
-                                              textAlign: TextAlign.center,
-                                            ))
-                                            : showToast(
-                                            context, "Connection Error");
-                                      }
-                                    }else {
-                                      setState(() {
-                                        widget.showBoolean.showDevice =
-                                        !widget.showBoolean.showDevice;
-                                        if (widget.showBoolean.showAlbums) {
-                                          widget.showBoolean.showAlbums =
-                                          !widget.showBoolean.showAlbums;
-                                        }
-                                        if (widget.showBoolean.showVideos) {
-                                          widget.showBoolean.showVideos =
-                                          !widget.showBoolean.showVideos;
-                                        }
-                                        if (widget.showBoolean
-                                            .showAtchivements) {
-                                          widget.showBoolean.showAtchivements =
-                                          !widget.showBoolean.showAtchivements;
-                                        }
-                                        if (widget.showBoolean.showPlayers) {
-                                          widget.showBoolean.showPlayers =
-                                          !widget.showBoolean.showPlayers;
-                                        }
-                                        if (widget.showBoolean.showListPlayer) {
-                                          widget.showBoolean.showListPlayer =
-                                          !widget.showBoolean.showListPlayer;
-                                        }
-                                      });
-                                    }
-                                  },
-                                  leading: Container(
-                                    width: 10,
-                                    height: 50,
-                                    color: Colors.red,
-                                  ),
-                                  title: Text(
-                                    "الجهاز الفنى",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  trailing: widget.showBoolean.showDevice
-                                      ? Icon(Icons.keyboard_arrow_down)
-                                      : Icon(Icons.arrow_forward_ios),
+                                  ],
                                 ),
-                               ...getSingleTeamStaffDataEntities.data.map((e) => widget.showBoolean.showDevice
-                                   ?  Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment
-                                        .spaceBetween,
-                                    children: [
-                                      Flexible(
-                                        child: Container(
-                                          height: MediaQuery.of(
-                                              context)
-                                              .size
-                                              .height /
-                                              5,
-                                          child: Image.network(e.thumb),
-                                        ),
-                                      ),
-                                      Expanded(
-                                          flex: 2,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment
-                                                .center,
-                                            children: [
-                                              Text(
-                                                "${e.title}",
-                                                style: TextStyle(
-                                                    color: Colors
-                                                        .black,
-                                                    fontSize: 25,
-                                                    fontWeight:
-                                                    FontWeight
-                                                        .bold),
-                                              ),
-                                              SizedBox(
-                                                height: 20,
-                                              ),
-                                              Text(
-                                                "",
-                                                style: TextStyle(
-                                                    color: Colors
-                                                        .grey),
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              Text(
-                                                "",
-                                                style: TextStyle(
-                                                    color: Colors
-                                                        .grey),
-                                              ),
-                                            ],
-                                          )),
-                                    ],
-                                  ),
-                                ):Container()).toList(),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 50),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  onTap: ()async{
-                                    if(getSingleTeamAchievementDataEntities.status == null){
-                                      ProgressDialog dialog =
-                                      ProgressDialog(context);
-                                      dialog.show();
-                                      var response = await sl<Cases>()
-                                          .singleTeamAchievementsData(
-                                          widget.teamID);
-                                      dialog.hide();
-                                      if (response
-                                      is GetSingleTeamAchievementDataEntities) {
-                                        dialog.hide();
-                                          getSingleTeamAchievementDataEntities =
-                                              response;
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Directionality(
+                              textDirection: TextDirection.rtl,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 50),
+                                child: Column(
+                                  children: [
+                                    InkWell(
+                                      onTap: ()async{
+                                        if(getSingleTeamAchievementDataEntities.status == null){
+                                          setState(() {
+                                            showProgress =true;
+                                          });
+                                          var response = await sl<Cases>()
+                                              .singleTeamAchievementsData(
+                                              widget.teamID);
+                                           setState(() {
+                                             showProgress =false;
+                                           });
+                                          if (response
+                                          is GetSingleTeamAchievementDataEntities) {
+                                              getSingleTeamAchievementDataEntities =
+                                                  response;
+                                              setState(() {
+                                                widget.showBoolean.showAtchivements =
+                                                !widget.showBoolean.showAtchivements;
+                                                if (widget.showBoolean.showAlbums) {
+                                                  widget.showBoolean.showAlbums =
+                                                  !widget.showBoolean.showAlbums;
+                                                }
+                                                if (widget.showBoolean.showVideos) {
+                                                  widget.showBoolean.showVideos =
+                                                  !widget.showBoolean.showVideos;
+                                                }
+                                                if (widget.showBoolean.showPlayers) {
+                                                  widget.showBoolean.showPlayers =
+                                                  !widget.showBoolean.showPlayers;
+                                                }
+                                                if (widget.showBoolean.showDevice) {
+                                                  widget.showBoolean.showDevice =
+                                                  !widget.showBoolean.showDevice;
+                                                }
+                                                if (widget.showBoolean.showListPlayer) {
+                                                  widget.showBoolean.showListPlayer =
+                                                  !widget.showBoolean.showListPlayer;
+                                                }
+                                                widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                    .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
+                                              });
+
+                                          } else if (response
+                                          is ResponseModelFailure) {
+                                            ResponseModelFailure failure = response;
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
+                                                messageText: Text(
+                                                  response.message,
+                                                  textAlign: TextAlign.center,
+                                                ))
+                                                : showToast(
+                                                context, failure.message);
+                                          } else if (response == null) {
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
+                                                messageText: Text(
+                                                  "Connection Error",
+                                                  textAlign: TextAlign.center,
+                                                ))
+                                                : showToast(
+                                                context, "Connection Error");
+                                          }
+                                        }else {
                                           setState(() {
                                             widget.showBoolean.showAtchivements =
                                             !widget.showBoolean.showAtchivements;
@@ -607,464 +560,331 @@ class _NadiWidgetState extends State<NadiWidget> {
                                               widget.showBoolean.showListPlayer =
                                               !widget.showBoolean.showListPlayer;
                                             }
+                                            widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
                                           });
+                                        }
+                                      },
+                                      child: TileWidget(
+                                        "الانجازات",
+                                      ),
+                                    ),
+                                    widget.showBoolean.showAtchivements && getSingleTeamAchievementDataEntities.data.length == 0?getNoDataWidget(): Column(
+                                       children: [
+                                         ...getSingleTeamAchievementDataEntities.data.map((e) => widget.showBoolean.showAtchivements
+                                             ?Container(
+                                           padding: EdgeInsets.all(10),
+                                           child: Column(
+                                             children: [
+                                               Row(
+                                                 // mainAxisAlignment: MainAxisAlignment.end,
+                                                 children: [
+                                                   Image.asset(Res.basketiconlistimage),
+                                                   SizedBox(
+                                                     width: 10,
+                                                   ),
+                                                   Text("${e.title}")
+                                                 ],
+                                               ),
+                                               SizedBox(
+                                                 height: 10,
+                                               ),
+                                               Container(
+                                                 //  decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                                                 width:
+                                                 MediaQuery.of(context)
+                                                     .size
+                                                     .width,
+                                                 margin: EdgeInsets.only(
+                                                     right: 30),
+                                                 child: Text(
+                                                   "${e.content}",
+                                                   textAlign:
+                                                   TextAlign.right,
+                                                   maxLines: 5,
+                                                 ),
+                                               )
+                                             ],
+                                           ),
+                                         ):Container()).toList()
+                                       ],
+                                     ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Directionality(
+                              textDirection: TextDirection.rtl,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 50),
+                                child: Column(
+                                  children: [
+                                    InkWell(
+                                      onTap: ()async{
+                                        if(getAlbumScreenEntities.status == null){
 
-                                      } else if (response
-                                      is ResponseModelFailure) {
-                                        dialog.hide();
-                                        ResponseModelFailure failure = response;
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                            messageText: Text(
-                                              response.message,
-                                              textAlign: TextAlign.center,
-                                            ))
-                                            : showToast(
-                                            context, failure.message);
-                                      } else if (response == null) {
-                                        dialog.hide();
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                            messageText: Text(
-                                              "Connection Error",
-                                              textAlign: TextAlign.center,
-                                            ))
-                                            : showToast(
-                                            context, "Connection Error");
-                                      }
-                                    }else {
-                                      setState(() {
-                                        widget.showBoolean.showAtchivements =
-                                        !widget.showBoolean.showAtchivements;
-                                        if (widget.showBoolean.showAlbums) {
-                                          widget.showBoolean.showAlbums =
-                                          !widget.showBoolean.showAlbums;
+                                          setState(() {
+                                            showProgress =true;
+                                          });
+                                          var response = await sl<Cases>()
+                                              .singleTeamRelatedAlbums(
+                                              widget.teamID);
+                                          setState(() {
+                                            showProgress =false;
+                                          });
+                                          if (response
+                                          is SingleTeamRelatedAlbumsEntities) {
+                                            setState(() {
+                                              getAlbumScreenEntities =
+                                                  response;
+                                              widget.showBoolean.showAlbums =
+                                              !widget.showBoolean.showAlbums;
+                                              if (widget.showBoolean.showVideos) {
+                                                widget.showBoolean.showVideos = !widget.showBoolean.showVideos;
+                                              }
+                                              if (widget.showBoolean.showAtchivements) {
+                                                widget.showBoolean.showAtchivements = !widget.showBoolean.showAtchivements;
+                                              }
+                                              if (widget.showBoolean.showPlayers) {
+                                                widget.showBoolean.showPlayers = !widget.showBoolean.showPlayers;
+                                              }
+                                              if (widget.showBoolean.showDevice) {
+                                                widget.showBoolean.showDevice = !widget.showBoolean.showDevice;
+                                              }
+                                              if (widget.showBoolean.showListPlayer) {
+                                                widget.showBoolean.showListPlayer = !widget.showBoolean.showListPlayer;
+                                              }
+                                              widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                  .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
+                                            });
+                                          } else if (response
+                                          is ResponseModelFailure) {
+                                            ResponseModelFailure failure = response;
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
+                                                messageText: Text(
+                                                  response.message,
+                                                  textAlign: TextAlign.center,
+                                                ))
+                                                : showToast(
+                                                context, failure.message);
+                                          } else if (response == null) {
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
+                                                messageText: Text(
+                                                  "Connection Error",
+                                                  textAlign: TextAlign.center,
+                                                ))
+                                                : showToast(
+                                                context, "Connection Error");
+                                          }
+                                        }else {
+                                          setState(() {
+                                            widget.showBoolean.showAlbums =
+                                            !widget.showBoolean.showAlbums;
+                                            if (widget.showBoolean.showVideos) {
+                                              widget.showBoolean.showVideos =
+                                              !widget.showBoolean.showVideos;
+                                            }
+                                            if (widget.showBoolean
+                                                .showAtchivements) {
+                                              widget.showBoolean.showAtchivements =
+                                              !widget.showBoolean.showAtchivements;
+                                            }
+                                            if (widget.showBoolean.showPlayers) {
+                                              widget.showBoolean.showPlayers =
+                                              !widget.showBoolean.showPlayers;
+                                            }
+                                            if (widget.showBoolean.showDevice) {
+                                              widget.showBoolean.showDevice =
+                                              !widget.showBoolean.showDevice;
+                                            }
+                                            if (widget.showBoolean.showListPlayer) {
+                                              widget.showBoolean.showListPlayer =
+                                              !widget.showBoolean.showListPlayer;
+                                            }
+                                            widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
+                                          });
                                         }
-                                        if (widget.showBoolean.showVideos) {
-                                          widget.showBoolean.showVideos =
-                                          !widget.showBoolean.showVideos;
-                                        }
-                                        if (widget.showBoolean.showPlayers) {
-                                          widget.showBoolean.showPlayers =
-                                          !widget.showBoolean.showPlayers;
-                                        }
-                                        if (widget.showBoolean.showDevice) {
-                                          widget.showBoolean.showDevice =
-                                          !widget.showBoolean.showDevice;
-                                        }
-                                        if (widget.showBoolean.showListPlayer) {
-                                          widget.showBoolean.showListPlayer =
-                                          !widget.showBoolean.showListPlayer;
-                                        }
-                                      });
-                                    }
-                                  },
-                                  leading: Container(
-                                    width: 10,
-                                    height: 50,
-                                    color: Colors.red,
-                                  ),
-                                  title: Text(
-                                    "الانجازات",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  trailing: widget.showBoolean.showAtchivements
-                                      ? Icon(Icons.keyboard_arrow_down)
-                                      : Icon(Icons.arrow_forward_ios),
+                                      },
+                                      child: TileWidget(
+                                        "البومات",
+                                      ),
+                                    ),
+                                    widget.showBoolean.showAlbums && getAlbumScreenEntities.data.length == 0?getNoDataWidget():  Column(
+                                      children: [
+                                        ...getAlbumScreenEntities.data.map((e) =>  widget.showBoolean.showAlbums
+                                            ?getAlbumsWidget(context,mainPhoto:e.albumThumb,listThumbs:e.thubmsUrls,title:e.title):Container()).toList()
+                                      ],
+                                    )
+                                        ,
+                                  ],
                                 ),
-                                 ...getSingleTeamAchievementDataEntities.data.map((e) => widget.showBoolean.showAtchivements
-            ?Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          Image.asset(Res.basketiconlistimage),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text("${e.title}")
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Container(
-                                        //  decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                        width:
-                                        MediaQuery.of(context)
-                                            .size
-                                            .width,
-                                        margin: EdgeInsets.only(
-                                            right: 30),
-                                        child: Text(
-                                          "${e.content}",
-                                          textAlign:
-                                          TextAlign.right,
-                                          maxLines: 5,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ):Container()).toList(),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 50),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  onTap: ()async{
-                                    if(getAlbumScreenEntities.status == null){
-                                      ProgressDialog dialog =
-                                      ProgressDialog(context);
-                                      dialog.show();
-                                      var response = await sl<Cases>()
-                                          .singleTeamRelatedAlbums(
-                                          widget.teamID);
-                                      dialog.hide();
-                                      if (response
-                                      is SingleTeamRelatedAlbumsEntities) {
-                                        dialog.hide();
-                                        setState(() {
-                                          getAlbumScreenEntities =
-                                              response;
-                                          widget.showBoolean.showAlbums =
-                                          !widget.showBoolean.showAlbums;
-                                          if (widget.showBoolean.showVideos) {
-                                            widget.showBoolean.showVideos = !widget.showBoolean.showVideos;
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Directionality(
+                              textDirection: TextDirection.rtl,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 50),
+                                child: Column(
+                                  children: [
+                                    InkWell(
+                                      onTap: ()async{
+                                        if(getVideosScreenEntities.status == null){
+                                          setState(() {
+                                            showProgress =true;
+                                          });
+                                          var response = await sl<Cases>()
+                                              .singleTeamVideosScreenInitiation(
+                                              widget.teamID);
+                                          if (response
+                                          is GetSingleTeamVideosEntities) {
+                                            setState(() {
+                                              showProgress =false;
+                                            });
+                                            setState(() {
+                                              getVideosScreenEntities =
+                                                  response;
+                                              widget.showBoolean.showVideos =
+                                              !widget.showBoolean.showVideos;
+                                              if (widget.showBoolean.showAlbums) {
+                                                widget.showBoolean.showAlbums = !widget.showBoolean.showAlbums;
+                                              }
+                                              if (widget.showBoolean.showAtchivements) {
+                                                widget.showBoolean.showAtchivements = !widget.showBoolean.showAtchivements;
+                                              }
+                                              if (widget.showBoolean.showPlayers) {
+                                                widget.showBoolean.showPlayers = !widget.showBoolean.showPlayers;
+                                              }
+                                              if (widget.showBoolean.showDevice) {
+                                                widget.showBoolean.showDevice = !widget.showBoolean.showDevice;
+                                              }
+                                              if (widget.showBoolean.showListPlayer) {
+                                                widget.showBoolean.showListPlayer = !widget.showBoolean.showListPlayer;
+                                              }
+                                              widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                  .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
+                                            });
+                                          } else if (response
+                                          is ResponseModelFailure) {
+                                            ResponseModelFailure failure = response;
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
+                                                messageText: Text(
+                                                  response.message,
+                                                  textAlign: TextAlign.center,
+                                                ))
+                                                : showToast(
+                                                context, failure.message);
+                                          } else if (response == null) {
+                                            var platform =
+                                                Theme.of(context).platform;
+                                            platform == TargetPlatform.iOS
+                                                ? Get.snackbar("", "",
+                                                messageText: Text(
+                                                  "Connection Error",
+                                                  textAlign: TextAlign.center,
+                                                ))
+                                                : showToast(
+                                                context, "Connection Error");
                                           }
-                                          if (widget.showBoolean.showAtchivements) {
-                                            widget.showBoolean.showAtchivements = !widget.showBoolean.showAtchivements;
-                                          }
-                                          if (widget.showBoolean.showPlayers) {
-                                            widget.showBoolean.showPlayers = !widget.showBoolean.showPlayers;
-                                          }
-                                          if (widget.showBoolean.showDevice) {
-                                            widget.showBoolean.showDevice = !widget.showBoolean.showDevice;
-                                          }
-                                          if (widget.showBoolean.showListPlayer) {
-                                            widget.showBoolean.showListPlayer = !widget.showBoolean.showListPlayer;
-                                          }
-                                        });
-                                      } else if (response
-                                      is ResponseModelFailure) {
-                                        dialog.hide();
-                                        ResponseModelFailure failure = response;
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                            messageText: Text(
-                                              response.message,
-                                              textAlign: TextAlign.center,
-                                            ))
-                                            : showToast(
-                                            context, failure.message);
-                                      } else if (response == null) {
-                                        dialog.hide();
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                            messageText: Text(
-                                              "Connection Error",
-                                              textAlign: TextAlign.center,
-                                            ))
-                                            : showToast(
-                                            context, "Connection Error");
-                                      }
-                                    }else {
-                                      setState(() {
-                                        widget.showBoolean.showAlbums =
-                                        !widget.showBoolean.showAlbums;
-                                        if (widget.showBoolean.showVideos) {
-                                          widget.showBoolean.showVideos =
-                                          !widget.showBoolean.showVideos;
+                                        }else {
+                                          setState(() {
+                                            widget.showBoolean.showVideos =
+                                            !widget.showBoolean.showVideos;
+                                            if (widget.showBoolean.showAlbums) {
+                                              widget.showBoolean.showAlbums =
+                                              !widget.showBoolean.showAlbums;
+                                            }
+                                            if (widget.showBoolean
+                                                .showAtchivements) {
+                                              widget.showBoolean.showAtchivements =
+                                              !widget.showBoolean.showAtchivements;
+                                            }
+                                            if (widget.showBoolean.showPlayers) {
+                                              widget.showBoolean.showPlayers =
+                                              !widget.showBoolean.showPlayers;
+                                            }
+                                            if (widget.showBoolean.showDevice) {
+                                              widget.showBoolean.showDevice =
+                                              !widget.showBoolean.showDevice;
+                                            }
+                                            if (widget.showBoolean.showListPlayer) {
+                                              widget.showBoolean.showListPlayer =
+                                              !widget.showBoolean.showListPlayer;
+                                            }
+                                            widget.onChanged(widget.showBoolean.showDevice || widget.showBoolean.showPlayers||widget
+                                                .showBoolean.showAtchivements||widget.showBoolean.showVideos||widget.showBoolean.showAlbums||widget.showBoolean.showListPlayer);
+                                          });
                                         }
-                                        if (widget.showBoolean
-                                            .showAtchivements) {
-                                          widget.showBoolean.showAtchivements =
-                                          !widget.showBoolean.showAtchivements;
-                                        }
-                                        if (widget.showBoolean.showPlayers) {
-                                          widget.showBoolean.showPlayers =
-                                          !widget.showBoolean.showPlayers;
-                                        }
-                                        if (widget.showBoolean.showDevice) {
-                                          widget.showBoolean.showDevice =
-                                          !widget.showBoolean.showDevice;
-                                        }
-                                        if (widget.showBoolean.showListPlayer) {
-                                          widget.showBoolean.showListPlayer =
-                                          !widget.showBoolean.showListPlayer;
-                                        }
-                                      });
-                                    }
-                                  },
-                                  leading: Container(
-                                    width: 10,
-                                    height: 50,
-                                    color: Colors.red,
-                                  ),
-                                  title: Text(
-                                    "البومات",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  trailing: widget.showBoolean.showAlbums
-                                      ? Icon(Icons.keyboard_arrow_down)
-                                      : Icon(Icons.arrow_forward_ios),
+                                      },
+                                      child: TileWidget(
+                                        "فيديوهات",
+                                      ),
+                                    ),
+                                    widget.showBoolean.showVideos && getVideosScreenEntities.data.length == 0?getNoDataWidget(): Column(
+                                     children: [
+                                       ...getVideosScreenEntities.data.map((e) => widget.showBoolean.showVideos
+                                           ?Container(
+                                         padding: EdgeInsets.all(10),
+                                         child: Column(
+                                           children: [
+                                             Container(
+                                                 padding: EdgeInsets.all(10),
+                                                 height: MediaQuery.of(context).size.height / 3,
+                                                 child:e.videoType == VideoType.youtube? YoutubeListWidget(
+                                                   e.attachmentUrl,
+                                                   title: e.title,
+                                                   borderRadius:
+                                                   BorderRadius.only(
+                                                       topLeft: Radius
+                                                           .circular(10),
+                                                       topRight: Radius
+                                                           .circular(
+                                                           10)),
+                                                 ):ChewieListItem(videoPlayerController:VideoPlayerController.network(e.attachmentUrl))),
+                                             Container(
+                                               margin:
+                                               EdgeInsets.all(10),
+                                               alignment:
+                                               Alignment.center,
+                                               child: Text("${e.title}"),
+                                             )
+                                           ],
+                                         ),
+                                       ):Container()).toList()
+                                     ],
+                                   ),
+                                    SizedBox(height: 100,),
+                                  ],
                                 ),
-                                ...getAlbumScreenEntities.data.map((e) =>  widget.showBoolean.showAlbums
-                                    ?Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: Column(
-                                    children: [
-                                      Directionality(
-                                        textDirection: TextDirection.rtl,
-                                        child: ListTile(
-                                          leading: Container(
-                                            width: 10,
-                                            height: 50,
-                                            color: Colors.red,
-                                          ),
-                                          title: HtmlWidget(
-                                            "${e.title}",
-                                            /*style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600),*/
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Container(
-                                        height: MediaQuery.of(context).size.height / 3.5,
-                                        // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                        child: Row(
-                                          children: [
-                                            Flexible(
-                                                child: Stack(
-                                                  children: [
-                                                    GridView.builder(
-                                                     // padding: EdgeInsets.only(top: 10),
-                                                        itemCount: e.thubmsUrls.length >
-                                                            4
-                                                            ? 4
-                                                            : e.thubmsUrls.length,
-                                                        gridDelegate:
-                                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                                            crossAxisCount: 2,
-                                                            crossAxisSpacing: 2,
-                                                            childAspectRatio: 0.9,
-                                                            mainAxisSpacing: 2),
-                                                        itemBuilder: (context, ind) {
-                                                          return Image.network(
-                                                            e.thubmsUrls[ind],
-                                                            fit: BoxFit.fill,
-                                                          );
-                                                        }),
-                                                    Container(
-                                                      decoration: BoxDecoration(/*border:Border.all(color:Colors.black)*/),
-
-                                                      width: MediaQuery.of(context).size.width,
-                                                      height: MediaQuery.of(context).size.height,
-                                                    )
-                                                  ],
-                                                )),
-                                            Flexible(
-                                                child: Container(
-                                                  //  decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                                    height: MediaQuery.of(context).size.height / 3,
-                                                    padding: EdgeInsets.all(2),
-                                                    child: Image.network(
-                                                      e.albumThumb,
-                                                      fit: BoxFit.fill,
-                                                    ))),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ):Container()).toList()
-                                    ,
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 50),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  onTap: ()async{
-                                    if(getVideosScreenEntities.status == null){
-                                      ProgressDialog dialog =
-                                      ProgressDialog(context);
-                                      dialog.show();
-                                      var response = await sl<Cases>()
-                                          .singleTeamVideosScreenInitiation(
-                                          widget.teamID);
-                                      dialog.hide();
-                                      if (response
-                                      is GetSingleTeamVideosEntities) {
-                                        dialog.hide();
-                                        setState(() {
-                                          getVideosScreenEntities =
-                                              response;
-                                          widget.showBoolean.showVideos =
-                                          !widget.showBoolean.showVideos;
-                                          if (widget.showBoolean.showAlbums) {
-                                            widget.showBoolean.showAlbums = !widget.showBoolean.showAlbums;
-                                          }
-                                          if (widget.showBoolean.showAtchivements) {
-                                            widget.showBoolean.showAtchivements = !widget.showBoolean.showAtchivements;
-                                          }
-                                          if (widget.showBoolean.showPlayers) {
-                                            widget.showBoolean.showPlayers = !widget.showBoolean.showPlayers;
-                                          }
-                                          if (widget.showBoolean.showDevice) {
-                                            widget.showBoolean.showDevice = !widget.showBoolean.showDevice;
-                                          }
-                                          if (widget.showBoolean.showListPlayer) {
-                                            widget.showBoolean.showListPlayer = !widget.showBoolean.showListPlayer;
-                                          }
-                                        });
-                                      } else if (response
-                                      is ResponseModelFailure) {
-                                        dialog.hide();
-                                        ResponseModelFailure failure = response;
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                            messageText: Text(
-                                              response.message,
-                                              textAlign: TextAlign.center,
-                                            ))
-                                            : showToast(
-                                            context, failure.message);
-                                      } else if (response == null) {
-                                        dialog.hide();
-                                        var platform =
-                                            Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                            messageText: Text(
-                                              "Connection Error",
-                                              textAlign: TextAlign.center,
-                                            ))
-                                            : showToast(
-                                            context, "Connection Error");
-                                      }
-                                    }else {
-                                      setState(() {
-                                        widget.showBoolean.showVideos =
-                                        !widget.showBoolean.showVideos;
-                                        if (widget.showBoolean.showAlbums) {
-                                          widget.showBoolean.showAlbums =
-                                          !widget.showBoolean.showAlbums;
-                                        }
-                                        if (widget.showBoolean
-                                            .showAtchivements) {
-                                          widget.showBoolean.showAtchivements =
-                                          !widget.showBoolean.showAtchivements;
-                                        }
-                                        if (widget.showBoolean.showPlayers) {
-                                          widget.showBoolean.showPlayers =
-                                          !widget.showBoolean.showPlayers;
-                                        }
-                                        if (widget.showBoolean.showDevice) {
-                                          widget.showBoolean.showDevice =
-                                          !widget.showBoolean.showDevice;
-                                        }
-                                        if (widget.showBoolean.showListPlayer) {
-                                          widget.showBoolean.showListPlayer =
-                                          !widget.showBoolean.showListPlayer;
-                                        }
-                                      });
-                                    }
-                                  },
-                                  leading: Container(
-                                    width: 10,
-                                    height: 50,
-                                    color: Colors.red,
-                                  ),
-                                  title: Text(
-                                    "فيديوهات",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  trailing: widget.showBoolean.showVideos
-                                      ? Icon(Icons.keyboard_arrow_down)
-                                      : Icon(Icons.arrow_forward_ios),
-                                ),
-                                 ...getVideosScreenEntities.data.map((e) => widget.showBoolean.showVideos
-                                     ?Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                          padding:
-                                          EdgeInsets.all(10),
-                                          height: MediaQuery.of(
-                                              context)
-                                              .size
-                                              .height /
-                                              3,
-                                          child: ChewieListItem( videoPlayerController: VideoPlayerController.network(e.attachmentUrl),)),
-                                      Container(
-                                        margin:
-                                        EdgeInsets.all(10),
-                                        alignment:
-                                        Alignment.center,
-                                        child: Text("${e.title}"),
-                                      )
-                                    ],
-                                  ),
-                                ):Container()).toList()
-                                    ,
-                              ],
+                            SizedBox(
+                              height: 50,
                             ),
-                          ),
+                          ],
                         ),
-                        SizedBox(
-                          height: 50,
-                        ),
-                      ],
-                    ),
-                  )
-                : Container(),
-          ],
+                      )
+              ],
+            ),
+          ),
         ),
-      ),
+        showProgress?getLoadingContainer(context):Container()
+      ],
     );
   }
 }

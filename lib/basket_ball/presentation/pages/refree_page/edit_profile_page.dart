@@ -22,6 +22,7 @@ import 'package:hi_market/basket_ball/presentation/pages/refree_page/referee_per
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/refree_main_page.dart';
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/report_referee_page.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/go_to.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/notificationxx.dart';
 import 'package:hi_market/main.dart';
 import 'package:image_picker/image_picker.dart';
@@ -42,6 +43,12 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  TextEditingController phoneController = TextEditingController(text: sl<Cases>().getLoginData().data.userPhone);
+  TextEditingController idController = TextEditingController(text: sl<Cases>().getLoginData().data.nationalId);
+  TextEditingController bankController = TextEditingController(text: sl<Cases>().getLoginData().data.bankName);
+  TextEditingController acountController = TextEditingController(text: sl<Cases>().getLoginData().data.accountNo);
+  TextEditingController ibanController = TextEditingController(text: sl<Cases>().getLoginData().data.iban);
+  TextEditingController swiftCodeController = TextEditingController(text: sl<Cases>().getLoginData().data.swiftCode);
   @override
   void initState() {
     super.initState();
@@ -156,7 +163,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         return snapshot
                                             .data > 0
                                             ? Badge(
-                                          position: BadgePosition(left: 20),
+                                          position: BadgePosition(start: 20),
                                           badgeContent: Text(
                                             snapshot
                                                 .data
@@ -231,14 +238,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ))
             : showToast(context,failure.message);
       } else {
-        var platform = Theme.of(context).platform;
-        platform == TargetPlatform.iOS
-            ? Get.snackbar("", "",
-            messageText: Text(
-              "error connection",
-              textAlign: TextAlign.center,
-            ))
-            : showToast(context,"error connection");
+       errorDialog(context);
       }
     }
     /*  if(_image == null){
@@ -288,12 +288,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Container(
                 margin: EdgeInsets.only(right: 25,top: 10,left: 25,bottom: 10),
                 decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20)),
                 child: TextFormField(
                   maxLines: 1,
-                  keyboardType:
-                  TextInputType.numberWithOptions(),
+                  controller: phoneController,
+                  ////keyboardType: TextInputType.numberWithOptions(),
                   onChanged: (value) {
                     setState(() {
                       phone = value;
@@ -311,6 +310,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(fontSize: 15.0),
                   decoration: InputDecoration(
                       hintText: "الهاتف",
+                      fillColor: Colors.white,
+                      filled: true,
                       contentPadding: EdgeInsets.fromLTRB(
                           20.0, 10.0, 20.0, 10.0),
                       border: OutlineInputBorder(
@@ -342,12 +343,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Container(
                 margin: EdgeInsets.only(right: 25,top: 10,left: 25,bottom: 10),
                 decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20)),
                 child: TextFormField(
                   maxLines: 1,
-                  keyboardType:
-                  TextInputType.numberWithOptions(),
+                  controller: idController,
+                  ////keyboardType: TextInputType.numberWithOptions(),
                   onChanged: (value) {
                     setState(() {
                       nationalID = value;
@@ -362,6 +362,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(fontSize: 15.0),
                   decoration: InputDecoration(
                       hintText: "رقم البطاقة",
+                      fillColor: Colors.white,
+                      filled: true,
                       contentPadding: EdgeInsets.fromLTRB(
                           20.0, 10.0, 20.0, 10.0),
                       border: OutlineInputBorder(
@@ -393,12 +395,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Container(
                 margin: EdgeInsets.only(right: 25,top: 10,left: 25,bottom: 10),
                 decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20)),
                 child: TextFormField(
                   maxLines: 1,
-                  keyboardType:
-                  TextInputType.numberWithOptions(),
+                  controller: bankController,
+                  ////keyboardType: TextInputType.numberWithOptions(),
                   onChanged: (value) {
                     setState(() {
                       bankName = value;
@@ -413,6 +414,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(fontSize: 15.0),
                   decoration: InputDecoration(
                       hintText: "اسم البنك",
+                      fillColor: Colors.white,
+                      filled: true,
                       contentPadding: EdgeInsets.fromLTRB(
                           20.0, 10.0, 20.0, 10.0),
                       border: OutlineInputBorder(
@@ -444,12 +447,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Container(
                 margin: EdgeInsets.only(right: 25,top: 10,left: 25,bottom: 10),
                 decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20)),
                 child: TextFormField(
                   maxLines: 1,
-                  keyboardType:
-                  TextInputType.numberWithOptions(),
+                  controller: acountController,
+                  ////keyboardType: TextInputType.numberWithOptions(),
                   onChanged: (value) {
                     setState(() {
                       accountNo = value;
@@ -464,6 +466,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(fontSize: 15.0),
                   decoration: InputDecoration(
                       hintText: "رقم الحساب",
+                      fillColor: Colors.white,
+                      filled: true,
                       contentPadding: EdgeInsets.fromLTRB(
                           20.0, 10.0, 20.0, 10.0),
                       border: OutlineInputBorder(
@@ -495,12 +499,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Container(
                 margin: EdgeInsets.only(right: 25,top: 10,left: 25,bottom: 10),
                 decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20)),
                 child: TextFormField(
                   maxLines: 1,
-                  keyboardType:
-                  TextInputType.numberWithOptions(),
+                  controller: ibanController,
+                  ////keyboardType: TextInputType.numberWithOptions(),
                   onChanged: (value) {
                     setState(() {
                       iban = value;
@@ -515,6 +518,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(fontSize: 15.0),
                   decoration: InputDecoration(
                       hintText: "الخدمات المصرفية",
+                      fillColor: Colors.white,
+                      filled: true,
                       contentPadding: EdgeInsets.fromLTRB(
                           20.0, 10.0, 20.0, 10.0),
                       border: OutlineInputBorder(
@@ -546,12 +551,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Container(
                 margin: EdgeInsets.only(right: 25,top: 10,left: 25,bottom: 10),
                 decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20)),
                 child: TextFormField(
                   maxLines: 1,
-                  keyboardType:
-                  TextInputType.numberWithOptions(),
+                  controller: swiftCodeController,
+                  ////keyboardType: TextInputType.numberWithOptions(),
                   onChanged: (value) {
                     setState(() {
                       swiftCode = value;
@@ -566,6 +570,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(fontSize: 15.0),
                   decoration: InputDecoration(
                       hintText: "سويفت كود البنك",
+                      fillColor: Colors.white,
+                      filled: true,
                       contentPadding: EdgeInsets.fromLTRB(
                           20.0, 10.0, 20.0, 10.0),
                       border: OutlineInputBorder(

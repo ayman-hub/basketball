@@ -1,11 +1,14 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+
 import 'package:get/get.dart';
+import 'package:hi_market/basket_ball/data/data_sources/constant_data.dart';
 import 'package:hi_market/basket_ball/domain/entities/get_etihad_achievement_categories_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/response_failure.dart';
 import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/TileWidget.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 import '../../../../../injection.dart';
 import '../../../../../res.dart';
@@ -22,8 +25,10 @@ class AchievementPage extends StatefulWidget {
 
 class _AchievementPageState extends State<AchievementPage> {
  int showIndex = 100;
-
+bool refresh = true;
   Future getAchievements;
+
+
 
   @override
   void initState() {
@@ -39,12 +44,18 @@ class _AchievementPageState extends State<AchievementPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Container(
+    return getEtihadAchievmentsCategoriesEntities.status != null && refresh ? getData(getEtihadAchievmentsCategoriesEntities): Container(
         child: FutureBuilder(
           future: getAchievements ,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasError) {
               print("snapshotError : ${snapshot.error}");
+              return errorContainer(
+                  context, () {
+                setState(() {
+                  getAchievements = sl<Cases>().getEtihadAchievementsCategoriesAndAchievementsRelateToThisCategory();
+                });
+              });
             }
             switch (snapshot.connectionState) {
               case ConnectionState.none:
@@ -58,6 +69,7 @@ class _AchievementPageState extends State<AchievementPage> {
                 break;
               case ConnectionState.done:
                 if (snapshot.data is GetEtihadAchievmentsCategoriesEntities) {
+                  getEtihadAchievmentsCategoriesEntities = snapshot.data;
                   return getData(snapshot.data);
                 } else if (snapshot.data is ResponseModelFailure) {
                   if (snapshot.data is ResponseModelFailure) {
@@ -70,13 +82,8 @@ class _AchievementPageState extends State<AchievementPage> {
                           textAlign: TextAlign.center,
                         ))
                         : showToast(context, failure.message);
-                    return IconButton(
-                        icon: Icon(
-                          Icons.refresh,
-                          color: Colors.white,
-                          size: 45,
-                        ),
-                        onPressed: () {
+                    return errorContainer(
+                       context, () {
                           setState(() {
                             getAchievements = sl<Cases>().getEtihadAchievementsCategoriesAndAchievementsRelateToThisCategory();
                           });
@@ -101,8 +108,16 @@ class _AchievementPageState extends State<AchievementPage> {
   }
 
   getData(GetEtihadAchievmentsCategoriesEntities getEtihadAchievmentsCategoriesEntities){
-    return Container(
-        padding: EdgeInsets.all(10),
+    return   LiquidPullToRefresh(
+        onRefresh: () async {
+          setState(() {
+            refresh = false;
+            getAchievements = sl<Cases>().getEtihadAchievementsCategoriesAndAchievementsRelateToThisCategory();
+          });
+
+        },
+        backgroundColor: Colors.white,
+        color: staticColor,
         child:ListView(
           children: [
            ...getEtihadAchievmentsCategoriesEntities.data.map((e) =>  Directionality(
@@ -111,48 +126,48 @@ class _AchievementPageState extends State<AchievementPage> {
                duration: Duration(milliseconds: 50),
                child: Column(
                  children: [
-                   ListTile(
+                   InkWell(
                      onTap: () {
                        setState(() {
-                         showIndex = e.id;
-                       });
+                         if(showIndex != e.id){
+                                    showIndex = e.id;
+                                  }else{
+                           showIndex = null;
+                         }
+                                });
                      },
-                     leading: Container(
-                       width: 10,
-                       height: 50,
-                       color: Color(0xffE31E24),
-                     ),
-                     title: Text(
+                     child: TileWidget(
                        "${e.title}",
-                       style: TextStyle(
-                           color: Colors.black,
-                           fontSize: 18,
-                           fontWeight: FontWeight.w600),
                      ),
-                     trailing: e.id == showIndex?Icon(Icons.keyboard_arrow_down):Icon(Icons.arrow_forward_ios),
+                   //  trailing: e.id == showIndex?Icon(Icons.keyboard_arrow_down):Icon(Icons.arrow_forward_ios),
                    ),
-                  ...e.achievements.map((w) =>  e.id == showIndex ?Container(
-                     padding: EdgeInsets.all(10),
-                     child: Column(
-                       children: [
-                         Row(
-                           // mainAxisAlignment: MainAxisAlignment.end,
-                           children: [
-                             Image.asset(Res.basketiconlistimage),
-                             SizedBox(width: 10,),
-                             Text("${w.title}")
-                           ],
-                         ),
-                         SizedBox(height: 10,),
-                         Container(
-                           //  decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                           width:MediaQuery.of(context).size.width,
-                           margin:EdgeInsets.only(right: 30),
-                           child: HtmlWidget("${w.content}"),
-                         )
-                       ],
-                     ),
-                   ):Container()).toList(),
+                 e.achievements.length == 0 &&  e.id == showIndex ?getNoDataWidget(): Column(
+                    children: [
+                      SizedBox(height: 10,),
+                      ...e.achievements.map((w) =>  e.id == showIndex ?Container(
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                          children: [
+                            Row(
+                              // mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Image.asset(Res.basketiconlistimage,scale: 2,),
+                                SizedBox(width: 10,),
+                                Flexible(child: getTitle("${w.title}",textAlign: TextAlign.right))
+                              ],
+                            ),
+                            SizedBox(height: 10,),
+                            Container(
+                              //  decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                              width:MediaQuery.of(context).size.width,
+                              margin:EdgeInsets.only(right: 30),
+                              child: getBody("${w.content}",color: Colors.grey),
+                            )
+                          ],
+                        ),
+                      ):Container()).toList(),
+                    ],
+                  )
                  ],
                ),
              ),

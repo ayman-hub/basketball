@@ -238,9 +238,9 @@ class Teams {
     print("team from json 1");
     id = json['id'];
     print("team from json 2");
-    title = json['title'].toString();
+    title = (json['title']??"").toString();
     print("team from json 3");
-    logo = json['logo'].toString();
+    logo = (json['logo']??"").toString();
     print("team from json 4");
     result = json['result'] != null ? new Result.fromJson(json['result']) : "";
     print("team from json 4");

@@ -20,6 +20,7 @@ import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/refree_main_page.dart';
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/report_referee_page.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/go_to.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/notificationxx.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
@@ -59,6 +60,7 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
   String secondTeam = "";
 
   bool showEdites = false;
+  bool showProgress = false;
 
   GetTeamPlayersEntities getTeamPlayersEntities;
 
@@ -81,8 +83,16 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
   TextEditingController firstTeamController = TextEditingController();
   TextEditingController secondTeamController = TextEditingController();
 
+  int selected;
+
   getNotificationData() async {
+    setState(() {
+      showProgress = true;
+    });
     var response = await sl<Cases>().getNotification();
+    setState(() {
+      showProgress = false;
+    });
     if (response is NotificationEntities) {
       Move.to(
           context: context,
@@ -99,14 +109,7 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
               ))
           : showToast(context, response.message);
     } else {
-      var platform = Theme.of(context).platform;
-      platform == TargetPlatform.iOS
-          ? Get.snackbar("", "",
-              messageText: Text(
-                'Connection Error',
-                textAlign: TextAlign.center,
-              ))
-          : showToast(context, 'Connection Error');
+     errorDialog(context);
     }
   }
 
@@ -262,7 +265,8 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
                                     if (snapshot.data is int) {
                                       return snapshot.data > 0
                                           ? Badge(
-                                              position: BadgePosition(left: 20),
+                                              position:
+                                                  BadgePosition(start: 20),
                                               badgeContent: Text(
                                                 snapshot.data.toString(),
                                                 style: TextStyle(
@@ -288,7 +292,8 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
                                         // margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height / 10),
                                         child: IconButton(
                                             icon: Image.asset(Res.bell),
-                                            onPressed: () =>  getNotificationData()));
+                                            onPressed: () =>
+                                                getNotificationData()));
                                   }),
                               /*  showEditProfile
                                   ? Container()
@@ -305,14 +310,14 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
                                   : IconButton(
                                       icon: Image.asset("images/money.png"),
                                       onPressed: () async {
-                                        ProgressDialog dialog =
-                                            ProgressDialog(context);
-                                        dialog.show();
+                                        setState(() {
+                                          showProgress = true;
+                                        });
                                         var response =
                                             await sl<Cases>().refereeReport();
-                                        if (dialog.isShowing()) {
-                                          dialog.hide();
-                                        }
+                                        setState(() {
+                                          showProgress = false;
+                                        });
                                         if (response is RefereeReportEntities) {
                                           Move.to(
                                               context: context,
@@ -324,8 +329,7 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
                                             is ResponseModelFailure) {
                                           showToast(context, response.message);
                                         } else {
-                                          showToast(
-                                              context, "Connection Error");
+                                          errorDialog(context);
                                         }
                                       },
                                     ),
@@ -440,15 +444,19 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
                                   Container(
                                     //decoration: BoxDecoration(border: Border.all(color: Colors.black)),
                                     alignment: Alignment.center,
-                                    child: Text(
-                                      "${widget.getMatchDetailsEntities.data.referees.first.username}",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: MediaQuery.of(context)
+                                    child: Wrap(
+                                      children: [
+                                        ...widget.getMatchDetailsEntities.data.referees.map((e) =>   Text(
+                                          "    ${e.username}    ",
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: MediaQuery.of(context)
                                                   .size
                                                   .width /
-                                              40),
-                                      textAlign: TextAlign.center,
+                                                  40),
+                                          textAlign: TextAlign.center,
+                                        ),).toList()
+                                      ],
                                     ),
                                   ),
                                   Container(
@@ -482,18 +490,19 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
                                   Container(
                                     alignment: Alignment.center,
                                     child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          "${widget.getMatchDetailsEntities.data.matchLeague}",
-                                          style: GoogleFonts.cairo(
-                                              color: Colors.grey,
-                                              fontSize: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  45),
-                                        ),
-                                        SizedBox(
-                                          width: 15,
+                                        Expanded(
+                                          child: Text(
+                                            "${widget.getMatchDetailsEntities.data.matchLeague}",
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.cairo(
+                                                color: Colors.grey,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    45),
+                                          ),
                                         ),
                                         Text(
                                           "تقام الأن",
@@ -580,6 +589,7 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
               ),
             ],
           ),
+          showProgress?getLoadingContainer(context):Container()
         ],
       ),
       bottomNavigationBar: getNavigationBar(context),
@@ -587,7 +597,7 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
   }
 
   startMatchWidget() {
-    return  Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         InkWell(
@@ -595,7 +605,7 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
             bool result = await displayTextInputDialog(context);
             if (result == true) {
               GetMatchIdEntities getMatchIdEntities =
-              sl<Cases>().getMatchIdSharedPreference();
+                  sl<Cases>().getMatchIdSharedPreference();
               if (getMatchIdEntities.data == null) {
                 getMatchIdEntities.data = List();
               }
@@ -638,7 +648,13 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
         InkWell(
           onTap: () async {
             if (widget.getMatchDetailsEntities.data.isMainReferee == true) {
+              setState(() {
+                showProgress = true;
+              });
               var response = await sl<Cases>().startMatch(widget.matchID);
+              setState(() {
+                showProgress = false;
+              });
               if (response is bool) {
                 setState(() {
                   match = matchType.end;
@@ -653,7 +669,7 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
               } else if (response is ResponseModelFailure) {
                 showToast(context, response.message);
               } else {
-                showToast(context, "Connection Error");
+               errorDialog(context);
               }
             } else {
               showToast(context, "غير مصرح لك تسجيل تقرير المباراة");
@@ -749,7 +765,13 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
                   onTap: () async {
                     if (widget.getMatchDetailsEntities.data.isMainReferee ==
                         true) {
+                      setState(() {
+                        showProgress = true;
+                      });
                       var response = await sl<Cases>().endMatch(widget.matchID);
+                      setState(() {
+                        showProgress = false;
+                      });
                       if (response is bool) {
                         setState(() {
                           match = matchType.result;
@@ -760,7 +782,7 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
                       } else if (response is ResponseModelFailure) {
                         showToast(context, response.message);
                       } else {
-                        showToast(context, "Connection Error");
+                       errorDialog(context);
                       }
                     }
                   },
@@ -786,10 +808,12 @@ class _GetBottomSheetWidgetState extends State<RefreeRoportMatchPage> {
       ),
     );
   }
-List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
+
+  List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
+
   resultMatch() {
     return Container(
-      height: MediaQuery.of(context).size.height / 2.8 ,
+        height: MediaQuery.of(context).size.height / 2.8,
         child: ListView(
           children: [
             SizedBox(
@@ -891,7 +915,9 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
                       ),
                       InkWell(
                         onTap: () async {
-                          if(widget.getMatchDetailsEntities.data.isMainReferee == true){
+                          if (widget
+                                  .getMatchDetailsEntities.data.isMainReferee ==
+                              true) {
                             if (showEdites) {
                               print("heeree");
                               setState(() {
@@ -903,16 +929,23 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
                                 firstTeam != null &&
                                 secondTeam != null &&
                                 secondTeam != "") {
+                              setState(() {
+                                showProgress = true;
+                              });
                               var response = await sl<Cases>().matchResultEntry(
                                   widget.matchID,
-                                  widget.getMatchDetailsEntities.data.match.results
-                                      .first.id
+                                  widget.getMatchDetailsEntities.data.match
+                                      .results.first.id
                                       .toString(),
-                                  widget.getMatchDetailsEntities.data.match.results
-                                      .last.id
+                                  widget.getMatchDetailsEntities.data.match
+                                      .results.last.id
                                       .toString(),
                                   firstTeam,
-                                  secondTeam,reportPlayers);
+                                  secondTeam,
+                                  reportPlayers);
+                              setState(() {
+                                showProgress = false;
+                              });
                               if (response is bool) {
                                 setState(() {
                                   showEdites = true;
@@ -927,8 +960,9 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
                                 showMessageAlert(context);
                               }
                             }
-                          }else{
-                            showToast(context, "غير مصرح لك تسجيل تقرير المباراة");
+                          } else {
+                            showToast(
+                                context, "غير مصرح لك تسجيل تقرير المباراة");
                           }
                         },
                         child: Container(
@@ -1027,12 +1061,16 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
             InkWell(
               onTap: () async {
                 if (getTeamPlayersEntities == null) {
-                  ProgressDialog dialog = ProgressDialog(context);
-                  dialog.show();
+                 setState(() {
+                       showProgress = true;
+                     });
                   var response =
                       await sl<Cases>().getPlayersTeams(widget.matchID);
+                  setState(() {
+                    showProgress = false;
+                  });
                   // Future.delayed(Duration(milliseconds: 100),(){
-                  dialog.hide();
+
                   // });
                   if (response is GetTeamPlayersEntities) {
                     getTeamPlayersEntities = response;
@@ -1058,15 +1096,34 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
                 ],
               ),
             ),
-            ...reportPlayers.map((e) => ListTile(
-              title: Text(e.player,style: GoogleFonts.cairo(color: Colors.black,fontWeight: FontWeight.bold),textAlign: TextAlign.right,),
-              subtitle: Text(e.report,style: GoogleFonts.cairo(color: Colors.black,),textAlign: TextAlign.right,maxLines: 1,),
-              leading: IconButton(icon: Icon(Icons.delete,color: Colors.red,), onPressed: (){
-                setState(() {
-                  reportPlayers.remove(e);
-                });
-              }),
-            )).toList(),
+            ...reportPlayers
+                .map((e) => ListTile(
+                      title: Text(
+                        e.player,
+                        style: GoogleFonts.cairo(
+                            color: Colors.black, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.right,
+                      ),
+                      subtitle: Text(
+                        e.report,
+                        style: GoogleFonts.cairo(
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.right,
+                        maxLines: 1,
+                      ),
+                      leading: IconButton(
+                          icon: Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              reportPlayers.remove(e);
+                            });
+                          }),
+                    ))
+                .toList(),
           ],
         ));
   }
@@ -1126,8 +1183,14 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
             onTap: () async {
               if (widget.getMatchDetailsEntities.data.isMainReferee == true) {
                 if (notes != "") {
+                  setState(() {
+                    showProgress = true;
+                  });
                   var response =
                       await sl<Cases>().matchNoteEntry(widget.matchID, notes);
+                  setState(() {
+                    showProgress = false;
+                  });
                   if (response is bool) {
                     showToast(context, "تم ارسال الملاحظة بنجاح");
                     setState(() {
@@ -1136,7 +1199,7 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
                   } else if (response is ResponseModelFailure) {
                     showToast(context, response.message);
                   } else {
-                    showToast(context, "Connection Error");
+                    errorDialog(context);
                   }
                 } else {
                   showMessageAlert(context);
@@ -1247,13 +1310,15 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
             onTap: () async {
               if (widget.getMatchDetailsEntities.data.isMainReferee == true) {
                 if (report != "" && selectedReportImage != null) {
-                  ProgressDialog dialog = ProgressDialog(context);
-                  dialog.show();
+                 setState(() {
+                       showProgress = true;
+                     });
                   var responseReport = await sl<Cases>().matchReportEntry(
                       widget.matchID, report, selectedReportImage);
-                  dialog.hide();
+                  setState(() {
+                    showProgress = false;
+                  });
                   if (responseReport is bool) {
-                    dialog.hide();
                     showToast(context, "تم ارسال التقرير بنجاح");
                     Move.noBack(context: context, page: RefereeMainPage());
 /*                  GetMatchIdEntities  getMatchIdEntities =  sl<Cases>().getMatchReportIDSharedPreference();
@@ -1263,11 +1328,9 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
                   getMatchIdEntities.data.add(widget.matchID);
                   sl<Cases>().setMatchReportIDSharedPreference(getMatchIdEntities);*/
                   } else if (responseReport is ResponseModelFailure) {
-                    dialog.hide();
                     showToast(context, responseReport.message);
                   } else {
-                    dialog.hide();
-                    showToast(context, "Connection Error");
+                    errorDialog(context);
                   }
                 } else {
                   showMessageAlert(context);
@@ -1723,7 +1786,13 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
       setState(() {
         widget.image = File(image.path);
       });
+      setState(() {
+        showProgress = true;
+      });
       var respond = await sl<Cases>().updateUserPicture(widget.image);
+      setState(() {
+        showProgress = false;
+      });
       if (respond is bool) {
         print("nnnnnnnnnnnnnnn");
       }
@@ -1733,7 +1802,7 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
         ResponseModelFailure failure = respond;
         showToast(context, failure.message);
       } else {
-        showToast(context, "error connection");
+        errorDialog(context);
       }
     }
     /*  if(_image == null){
@@ -1751,14 +1820,16 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
   File selectedReportImage;
 
   Future getReportImage() async {
-    PickedFile image =
-        await ImagePicker.platform.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        selectedReportImage = File(image.path);
-      });
-    }
-    /*  if(_image == null){
+    if (selected != null) {
+      PickedFile image = await ImagePicker.platform.pickImage(
+          source: selected == 0 ? ImageSource.gallery : ImageSource.camera,imageQuality: 0);
+      if (image != null) {
+        setState(() {
+          selectedReportImage = File(image.path);
+        });
+        print('image in pytes: ${await selectedReportImage.lengthSync() / 1024} kb');
+      }
+      /*  if(_image == null){
       var platform = Theme.of(context).platform;
       platform == TargetPlatform.iOS
           ? Get.snackbar("", "",
@@ -1768,6 +1839,222 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
           ))
           : showToast(context,"image not found");
     }*/
+    }else{
+   selected =  await   showDialogWidget();
+   if(selected != null){
+     getReportImage();
+     selected = null;
+   }
+    }
+  }
+
+  showDialogWidget() async {
+    return await showDialog<int>(
+      context: context,
+      barrierDismissible: false,
+      // false = user must tap button, true = tap outside dialog
+      builder: (BuildContext dialogContext) {
+        return Container(
+          width: MediaQuery.of(context).size.width,
+          child: StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              insetPadding: EdgeInsets.symmetric(horizontal: 10),
+              shape:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              content: Container(
+                height: 301,
+                width: MediaQuery.of(dialogContext).size.width,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(dialogContext);
+                          },
+                          child: Image.asset(
+                            "images/backimage.png",
+                            //scale: 3,
+                          ),
+                        ),
+                        Expanded(
+                            child: Container(
+                          alignment: Alignment.center,
+                          margin: EdgeInsets.only(right: 10),
+                          child: Text(
+                            "",
+                            style: GoogleFonts.cairo(
+                                color: Color(0xffE31E24),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20),
+                          ),
+                        ))
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          selected = 0;
+                        });
+                      },
+                      child: Container(
+                        height: 148,
+                        // margin: EdgeInsets.only(left: 10,right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width:
+                                  MediaQuery.of(dialogContext).size.width / 3,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: selected == 0
+                                      ? Color(0xffE31E24)
+                                      : Colors.white,
+                                  border: Border.all(
+                                      color: selected == 0
+                                          ? Color(0xffE31E24)
+                                          : Colors.black)),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  /* Container(
+                                    alignment: Alignment.center,
+                                    child: Image.asset(
+                                      "images/spoon.png",
+                                      scale: 2,
+                                      color: selected == 0
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 20,
+                                  ),*/
+                                  Container(
+                                    alignment: Alignment.center,
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          "معرض الصور",
+                                          style: GoogleFonts.ptSans(
+                                              color: selected == 0
+                                                  ? Colors.white
+                                                  : Colors.black),),
+                                        SizedBox(height:10),
+                                            Icon(
+                                              Icons.image,
+                                              color: selected == 0
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                            )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  selected = 1;
+                                });
+                              },
+                              child: Container(
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: selected == 1
+                                        ? Color(0xffE31E24)
+                                        : Colors.white,
+                                    border: Border.all(
+                                        color: selected == 1
+                                            ? Color(0xffE31E24)
+                                            : Colors.black)),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    /*     Container(
+                                      alignment: Alignment.center,
+                                      child: Image.asset(
+                                        "images/big_comic.png",
+                                        scale: 3,
+                                        color: selected == 1
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),*/
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "كاميرا",
+                                            style: GoogleFonts.ptSans(
+                                                color: selected == 1
+                                                    ? Colors.white
+                                                    : Colors.black),
+                                          ),
+                                          SizedBox(height: 10,),
+                                          Icon(
+                                            Icons.camera,
+                                            color: selected == 1
+                                                ? Colors.white
+                                                : Colors.black,
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        if(selected != null){
+                          return Navigator.pop(dialogContext, selected);
+                        }
+                      },
+                      child: Container(
+                        height: 50,
+                        alignment: Alignment.center,
+                        margin: EdgeInsets.only(left: 20, right: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: selected != null? Color(0xffE31E24):Colors.grey,
+                        ),
+                        child: Text(
+                          "اختر",
+                          style: GoogleFonts.ptSans(color: Colors.white),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          }),
+        );
+      },
+    );
   }
 
   void showMessageAlert(context) {
@@ -1842,7 +2129,7 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
         builder: (dialogContext) {
           return AlertDialog(
             title: Text(
-              'سبب إالغاء المباراه',
+              'سبب الإعتذار',
               textAlign: TextAlign.center,
             ),
             content: TextField(
@@ -1873,18 +2160,21 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
                   if (widget.getMatchDetailsEntities.data.isMainReferee ==
                       true) {
                     if (valueText.isNotEmpty) {
-                      ProgressDialog dialog = ProgressDialog(context);
-                      dialog.show();
+                     setState(() {
+                       showProgress = true;
+                     });
                       var response = await sl<Cases>()
                           .cancelMatch(widget.matchID, valueText);
-                      dialog.hide();
+                    setState(() {
+                      showProgress = false;
+                    });
                       if (response is bool) {
-                        dialog.hide();
+
                         Get.back(result: true);
                       } else if (response is ResponseModelFailure) {
                         showToast(context, response.message);
                       } else {
-                        showToast(context, "Connection Error");
+                       errorDialog(context);
                       }
                     } else {
                       showToast(context, "يجب كتابة السبب أولا");
@@ -2059,8 +2349,8 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
     );
     print(reportEntities);
     bool noInthere = true;
-    if(reportEntities != null){
-  /*    reportPlayers.forEach((element) {
+    if (reportEntities != null) {
+      /*    reportPlayers.forEach((element) {
         if(reportEntities.id == element.id){
           print("there");
           setState(() {
@@ -2086,7 +2376,7 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
           });
         }
       }
-      if(noInthere){
+      if (noInthere) {
         setState(() {
           reportPlayers.add(reportEntities);
         });
@@ -2095,4 +2385,3 @@ List<ReportPlayerEntities> reportPlayers = List.empty(growable: true);
     }
   }
 }
-

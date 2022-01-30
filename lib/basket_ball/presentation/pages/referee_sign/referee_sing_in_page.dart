@@ -9,6 +9,7 @@ import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
 import 'package:hi_market/basket_ball/presentation/pages/referee_sign/referee_sing_up_page.dart';
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/refree_main_page.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/go_to.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
 import 'package:hi_market/main.dart';
 import 'package:hi_market/main.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -33,8 +34,11 @@ class _RefereeSignINPageState extends State<RefereeSignINPage> {
 
   String password;
 
+
   ProgressDialog dialog ;
   final formkey = GlobalKey<FormState>();
+
+  bool showProgress = false;
 
   @override
   void initState() {
@@ -107,13 +111,13 @@ class _RefereeSignINPageState extends State<RefereeSignINPage> {
                           },
                           validator: (value) {
                             if (value.isEmpty) {
-                              return 'عفوا يجب كتابة البريد الالكتروني الخاص بك';
+                              return 'عفوا يجب كتابة البريد الالكتروني أو الاسم الخاص بك';
                             }
                             return null;
                           },
                           style: TextStyle(fontSize: 15.0),
                           decoration: InputDecoration(
-                              hintText: "البريد الالكتروني",
+                              hintText: "البريد الالكتروني/اسم المستخدم",
                               contentPadding:
                               EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                               border: OutlineInputBorder(
@@ -153,11 +157,11 @@ class _RefereeSignINPageState extends State<RefereeSignINPage> {
                       SizedBox(
                         height: 10,
                       ),
-                      InkWell(
-                        onTap: () =>
-                            Move.to(context: context, page: ForgetPasswordPage()),
-                        child: Container(
-                          alignment: Alignment.centerRight,
+                      Container(
+                        alignment: Alignment.centerRight,
+                        child: InkWell(
+                          onTap: () =>
+                              Move.to(context: context, page: ForgetPasswordPage()),
                           child: Text(
                             "نسيت كلمة المرور",
                             style: TextStyle(color: Color(0xffE31E24), fontSize: 20),
@@ -170,25 +174,29 @@ class _RefereeSignINPageState extends State<RefereeSignINPage> {
                       FlatButton(
                           onPressed: () async {
                             if (formkey.currentState.validate()) {
-                              dialog.show();
+                             setState(() {
+                               showProgress = true;
+                             });
                               var response = await sl<Cases>()
                                   .login(email: email, password: password);
-                              dialog.hide();
+                              setState(() {
+                                showProgress = false;
+                              });
+
                               if (response is LoginDataEntities) {
                                 if (response.data.isActivated.toString() == "1") {
-                                  dialog.hide();
+
                                     sl<Cases>().setUserPassword(UserNameAndPasswordEntities(userName: email,password: password));
                                     sl<Cases>().setLoginData(response);
                                     Move.noBack(
                                         context: context,
                                         page: RefereeMainPage());
                                 }else{
-                                  dialog.hide();
-                                  showToast(context, "سيتم انشاء حساب لك فور قبول طلبك من الإداره");
                                   Move.to(context: context, page:MyHomePage());
+                                  showToast(context, "سيتم انشاء حساب لك فور قبول طلبك من الإداره");
                                 }
                               }else if (response is ResponseModelFailure) {
-                                dialog.hide();
+
                                 var platform = Theme.of(context).platform;
                                 platform == TargetPlatform.iOS
                                     ? Get.snackbar("", "",
@@ -199,7 +207,7 @@ class _RefereeSignINPageState extends State<RefereeSignINPage> {
                                     : showToast(context, response.message);
                               }else {
                                 print("hsssss");
-                                dialog.hide();
+
                                 var platform = Theme.of(context).platform;
                                 platform == TargetPlatform.iOS
                                     ? Get.snackbar("", "",
@@ -210,7 +218,7 @@ class _RefereeSignINPageState extends State<RefereeSignINPage> {
                                     : showToast(context, "Connection Error");
                               }
                             }
-                            dialog.hide();
+
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -230,7 +238,7 @@ class _RefereeSignINPageState extends State<RefereeSignINPage> {
                             padding: EdgeInsets.all(10),
                             alignment: Alignment.center,
                             child: Text(
-                              "تسجيل",
+                              "تسجيل الدخول",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -288,6 +296,7 @@ class _RefereeSignINPageState extends State<RefereeSignINPage> {
               ),
             ],
           ),
+          showProgress?getLoadingContainer(context):Container()
         ],
       ),
       bottomNavigationBar: getNavigationBar(context),

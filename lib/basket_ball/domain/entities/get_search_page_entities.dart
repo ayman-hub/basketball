@@ -1,7 +1,7 @@
 class GetSearchPageEntities {
 String status;
 String message;
-List<Data> data;
+List<Data> data = [];
 
 GetSearchPageEntities({this.status, this.message, this.data});
 

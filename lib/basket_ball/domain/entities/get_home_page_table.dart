@@ -32,7 +32,7 @@ class Data {
   String w;
   String l;
   String pct;
-  String gb;
+  String gp;
   String home;
   String road;
   String lten;
@@ -48,7 +48,7 @@ class Data {
         this.w,
         this.l,
         this.pct,
-        this.gb,
+        this.gp,
         this.home,
         this.road,
         this.lten,
@@ -60,20 +60,20 @@ class Data {
         this.logoUrl});
 
   Data.fromJson(Map<String, dynamic> json) {
-    name = json['name'].toString();
-    w = json['w'].toString();
-    l = json['l'].toString();
-    pct = json['pct'].toString();
-    gb = json['gb'].toString();
-    home = json['home'].toString();
-    road = json['road'].toString();
-    lten = json['lten'].toString();
-    strk = json['strk'].toString();
-    pf = json['pf'].toString();
-    pa = json['pa'].toString();
-    diff = json['diff'].toString();
+    name = json['name']??"0";
+    w = json['w']??"0";
+    l = json['l']??"0";
+    pct = json['pct']??"0";
+    gp = json['gp']??"0";
+    home = json['home']??"0";
+    road = json['road']??"0";
+    lten = json['lten']??"0";
+    strk = json['strk']??"0";
+    pf = json['pf']??"0";
+    pa = json['pa']??"0";
+    diff = json['diff']??"0";
     id = json['id'];
-    logoUrl = json['logo_url'].toString();
+    logoUrl = json['logo_url']??"0";
   }
 
   Map<String, dynamic> toJson() {
@@ -82,7 +82,7 @@ class Data {
     data['w'] = this.w;
     data['l'] = this.l;
     data['pct'] = this.pct;
-    data['gb'] = this.gb;
+    data['gb'] = this.gp;
     data['home'] = this.home;
     data['road'] = this.road;
     data['lten'] = this.lten;

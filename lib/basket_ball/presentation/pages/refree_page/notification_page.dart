@@ -8,6 +8,7 @@ import 'package:hi_market/basket_ball/domain/entities/response_failure.dart';
 import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/refree_main_page.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/go_to.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/notificationxx.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
@@ -26,6 +27,8 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
  NotificationEntities notificationEntities  =  NotificationEntities(data: List());
+
+  bool showProgress = false;
  DateTime refactorNotificationDate(String date) {
    List formateDate = date.contains("/")?date.split("/").toList():date.split("-").toList();
    print("formateData: ${formateDate}");
@@ -47,14 +50,7 @@ class _NotificationPageState extends State<NotificationPage> {
               ))
           : showToast(context, response.message);
     } else {
-      var platform = Theme.of(context).platform;
-      platform == TargetPlatform.iOS
-          ? Get.snackbar("", "",
-              messageText: Text(
-                'Connection Error',
-                textAlign: TextAlign.center,
-              ))
-          : showToast(context, 'Connection Error');
+     errorDialog(context);
     }
   }
 
@@ -78,7 +74,7 @@ class _NotificationPageState extends State<NotificationPage> {
   });*/
   print("notification last: ${notificationEntities.data.map((element) =>       "notification data : ${element.notId}  ${element.matchId}  ${element.matchName}")}");
     notificationCount = 0 ;
-   getData();
+  // getData();
     super.initState();
   }
   @override
@@ -174,14 +170,20 @@ class _NotificationPageState extends State<NotificationPage> {
                             SizedBox(
                               height: 10,
                             ),
-                            refactorNotificationDate(e.date).isBefore(DateTime.now().subtract(Duration(days: 1)))||e.type == "2" || sl<Cases>().getNotificationIdSharedPreference().contains(e.notId)?Container(): Row(
+                            refactorNotificationDate(e.date).isBefore(DateTime.now().subtract(Duration(days: 1)))/*||e.type == "2" || sl<Cases>().getNotificationIdSharedPreference().contains(e.notId)*/?Container(): Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 TextButton(
                                     onPressed: () async {
+                                      setState(() {
+                                        showProgress = true;
+                                      });
                                       var response = await sl<Cases>()
                                           .judgeNotificationAction(
                                               not_id: e.notId, res: false);
+                                      setState(() {
+                                        showProgress = false;
+                                      });
                                       if (response is bool) {
                                         setState(() {
                                           notificationEntities.data.remove(e);
@@ -204,15 +206,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                                 ))
                                             : showToast(context, response.message);
                                       } else {
-                                        var platform = Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                                messageText: Text(
-                                                  "Connection Error",
-                                                  textAlign: TextAlign.center,
-                                                ))
-                                            : showToast(
-                                                context, "Connection Error");
+                                        errorDialog(context);
                                       }
                                     },
                                     child: Container(
@@ -226,9 +220,15 @@ class _NotificationPageState extends State<NotificationPage> {
                                     )),
                                 TextButton(
                                     onPressed: () async {
+                                      setState(() {
+                                        showProgress = true;
+                                      });
                                       var response = await sl<Cases>()
                                           .judgeNotificationAction(
                                               not_id: e.notId, res: true);
+                                      setState(() {
+                                        showProgress = false;
+                                      });
                                       if (response is bool) {
                                         setState(() {
                                           notificationEntities.data.remove(e);
@@ -254,15 +254,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                                 ))
                                             : showToast(context, response.message);
                                       } else {
-                                        var platform = Theme.of(context).platform;
-                                        platform == TargetPlatform.iOS
-                                            ? Get.snackbar("", "",
-                                                messageText: Text(
-                                                  "Connection Error",
-                                                  textAlign: TextAlign.center,
-                                                ))
-                                            : showToast(
-                                                context, "Connection Error");
+                                        errorDialog(context);
                                       }
                                     },
                                     child: Container(
@@ -283,6 +275,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 ],
               ),
             ),
+            showProgress ?getLoadingContainer(context) :Container()
           ],
         ),
         bottomNavigationBar: getNavigationBar(context),

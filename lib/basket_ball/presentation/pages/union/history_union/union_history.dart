@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hi_market/basket_ball/data/data_sources/constant_data.dart';
 
 import 'achievement_page.dart';
@@ -67,7 +68,7 @@ class _UnionHistoryPageState extends State<UnionHistoryPage> {
                         ),
                         alignment: Alignment.center,
                         padding: EdgeInsets.all(10),
-                        child: Text("تاريخ الإتحاد",style: TextStyle(color: Colors.black,fontSize: 15,fontWeight: FontWeight.w600),),
+                        child: Text("تاريخ الإتحاد",style: GoogleFonts.cairo(color: selected==0 ? Colors.black:Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),
                       ),
                     ),
                   ),
@@ -85,7 +86,7 @@ class _UnionHistoryPageState extends State<UnionHistoryPage> {
                         ),
                         alignment: Alignment.center,
                         padding: EdgeInsets.all(10),
-                        child: Text("الإنجازات",style: TextStyle(color:Colors.black,fontSize: 15,fontWeight: FontWeight.w600),),
+                        child: Text("الإنجازات",style: GoogleFonts.cairo(color:selected == 1 ?Colors.black:Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),
                       ),
                     ),
                   ),

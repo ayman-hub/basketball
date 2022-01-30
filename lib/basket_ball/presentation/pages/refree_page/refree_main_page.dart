@@ -22,10 +22,11 @@ import 'package:hi_market/basket_ball/presentation/pages/refree_page/referee_per
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/referee_personal_file_page.dart';
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/report_referee_page.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/go_to.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/notificationxx.dart';
 import 'package:hi_market/main.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+
 
 import '../../../../injection.dart';
 import '../../../../res.dart';
@@ -58,14 +59,16 @@ class _RefereeMainPageState extends State<RefereeMainPage> {
   bool showNotification = false;
 
   NotificationEntities notifications;
-
+bool showProgress = false;
   getNotificationData() async {
-    ProgressDialog dialog = ProgressDialog(context);
-    dialog.show();
+    setState(() {
+      showProgress =true;
+    });
     var response = await sl<Cases>().getNotification();
-    dialog.hide();
+setState(() {
+  showProgress = false;
+});
     if (response is NotificationEntities) {
-      dialog.hide();
       Move.to(context: context, page: NotificationPage(notificationEntities: response,));
     } else if (response is ResponseModelFailure) {
       var platform = Theme.of(context).platform;
@@ -77,16 +80,8 @@ class _RefereeMainPageState extends State<RefereeMainPage> {
           ))
           : showToast(context, response.message);
     } else {
-      var platform = Theme.of(context).platform;
-      platform == TargetPlatform.iOS
-          ? Get.snackbar("", "",
-          messageText: Text(
-            'Connection Error',
-            textAlign: TextAlign.center,
-          ))
-          : showToast(context, 'Connection Error');
+    errorDialog(context);
     }
-    dialog.hide();
   }
 
 /*  pushNotification()async{
@@ -122,7 +117,6 @@ class _RefereeMainPageState extends State<RefereeMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
@@ -225,7 +219,7 @@ class _RefereeMainPageState extends State<RefereeMainPage> {
                                         return snapshot
                                                     .data > 0
                                             ? Badge(
-                                                position: BadgePosition(left: 20),
+                                                position: BadgePosition(start: 20),
                                                 badgeContent: Text(
                                                   snapshot
                                                       .data
@@ -260,18 +254,19 @@ class _RefereeMainPageState extends State<RefereeMainPage> {
                                IconButton(
                                   icon:Image.asset("images/money.png"),
                                   onPressed: ()async {
-                                    ProgressDialog dialog = ProgressDialog(context);
-                               bool isShowDialog = await  dialog.show();
+                                   setState(() {
+                                     showProgress = true;
+                                   });
                               var response = await sl<Cases>().refereeReport();
-                              if(isShowDialog){
-                                dialog.hide();
-                              }
+                              setState(() {
+                                showProgress = false;
+                              });
                               if(response is RefereeReportEntities){
                                 Move.to(context: context, page: ReportRefereePage(image: widget.image, refereeReportEntities: response,));
                               }else if (response is ResponseModelFailure){
                                 showToast(context, response.message);
                               }else{
-                                showToast(context, "Connection Error");
+                                errorDialog(context);
                               }
                                   },
                                 ),
@@ -459,6 +454,7 @@ class _RefereeMainPageState extends State<RefereeMainPage> {
                 ],
               ),
             ),
+            showProgress?getLoadingContainer(context):Container()
           ],
         ),
       ),
@@ -499,14 +495,7 @@ class _RefereeMainPageState extends State<RefereeMainPage> {
             ))
             : showToast(context,failure.message);
       } else {
-        var platform = Theme.of(context).platform;
-        platform == TargetPlatform.iOS
-            ? Get.snackbar("", "",
-            messageText: Text(
-              "error connection",
-              textAlign: TextAlign.center,
-            ))
-            : showToast(context,"error connection");
+       errorDialog(context);
     }
     }
   /*  if(_image == null){

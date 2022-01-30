@@ -1,3 +1,5 @@
+import 'package:hi_market/basket_ball/data/data_sources/constant_data.dart';
+
 class GetEtihadAchievmentsCategoriesEntities {
   String status;
   String message;
@@ -66,8 +68,8 @@ class Achievements {
 
   Achievements.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    title = json['title'].toString();
-    content = json['content'].toString();
+    title = removeSpecificData(json['title'].toString());
+    content = removeSpecificData(json['content'].toString());
   }
 
   Map<String, dynamic> toJson() {

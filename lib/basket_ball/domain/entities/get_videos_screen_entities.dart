@@ -67,7 +67,7 @@ class Videos {
 
   VideoType videoType;
 
-  Videos({this.id, this.title, this.attachmentUrl});
+  Videos({this.id, this.title, this.attachmentUrl,this.videoType});
 
   Videos.fromJson(Map<String, dynamic> json) {
     id = json['id'];

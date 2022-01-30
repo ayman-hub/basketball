@@ -71,7 +71,7 @@ WebViewController controller ;
           debuggingEnabled: true,
           gestureNavigationEnabled: true,
         ),
-        Container(height: 50,decoration: BoxDecoration(border:Border.all(color:Colors.black)),)
+        Container(height: 50,decoration: BoxDecoration(border:Border.all(color:Colors.transparent)),)
       ],
     );
 

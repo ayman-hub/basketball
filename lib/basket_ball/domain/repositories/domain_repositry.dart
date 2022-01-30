@@ -109,6 +109,9 @@ abstract class DomainRepositry {
       {String firstName,
       String lastName,
       String email,
+        String weight,
+        String height,
+       String loginName,
       String password,
       String phone,String nationalID,String governmentID,String type});
 

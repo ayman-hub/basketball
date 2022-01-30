@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 
 import 'package:hi_market/basket_ball/data/data_sources/constant_data.dart';
 import 'package:hi_market/basket_ball/domain/entities/get_listing_all_referees_entities.dart';
@@ -8,13 +10,19 @@ import 'package:hi_market/basket_ball/domain/entities/get_referee_conditions_ent
 import 'package:hi_market/basket_ball/domain/entities/referee_reference_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/response_failure.dart';
 import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
+import 'package:hi_market/basket_ball/presentation/pages/sport_details/sport_details.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/TileWidget.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/view_pdf_widget.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../../injection.dart';
+import '../../../../toast_utils.dart';
 
 class RefereePage extends StatefulWidget {
-  RefereePage({Key key}) : super(key: key);
-
+  RefereePage({Key key,  this.onChange,this.active}) : super(key: key);
+ValueChanged<RefreePageEnum> onChange;
+RefreePageEnum active;
   @override
   _RefereePageState createState() {
     return _RefereePageState();
@@ -22,24 +30,31 @@ class RefereePage extends StatefulWidget {
 }
 
 class _RefereePageState extends State<RefereePage> {
-  bool showReferee = false;
 
-  bool showConditions = false;
-
-  bool showRefereeReference = false;
 /*
   GetListingAllRefereesEntities getListingAllRefereesEntities =
       GetListingAllRefereesEntities(data: List());*/
-  GetRefereesConditionsEntities getRefereesConditionsEntities =
-      GetRefereesConditionsEntities();
-  RefereeReferenceEntities refereeReferenceEntities =
-      RefereeReferenceEntities(data: RefreeReferenceData(text: "", url: ""));
+
+
+  bool showProgress = false;
 
 
   @override
+  void didUpdateWidget(RefereePage oldWidget) {
+    print('update Widgets');
+    getActive();
+  }
+
+  getActive(){
+  print('getActive: ${widget.active}');
+  setState(() {
+
+  });
+}
+  @override
   void initState() {
     super.initState();
-
+   getActive();
   }
 
   @override
@@ -49,345 +64,241 @@ class _RefereePageState extends State<RefereePage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       body: Container(
         padding: EdgeInsets.all(10),
-        child: ListView(
+        child: Stack(
           children: [
-          /*  Directionality(
-              textDirection: TextDirection.rtl,
-              child: ListTile(
-                onTap: () async {
-                  if (getListingAllRefereesEntities.data.length == 0) {
-                    var response = await sl<Cases>().listingAllRefrees();
-                    if (response is GetListingAllRefereesEntities) {
-                      setState(() {
-                        showReferee = !showReferee;
-                        if (showConditions) {
-                          showConditions = !showConditions;
+            ListView(
+              children: [
+             widget.active == RefreePageEnum.reference ?Container():   Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: InkWell(
+                    onTap: () async{
+                      if(getRefereesConditionsEntities.data == null){
+                        setState(() {
+                          showProgress = true;
+                        });
+                        var responseCondition = await sl<Cases>().refreesCondition();
+                        setState(() {
+                          showProgress = false;
+                        });
+                        if (responseCondition is GetRefereesConditionsEntities) {
+                          setState(() {
+                            if(widget.active == RefreePageEnum.condition){
+                              widget.active = RefreePageEnum.none;
+                            }else{
+                              widget.active = RefreePageEnum.condition;
+                            }
+                            widget.onChange(widget.active);
+                          });
+                          setState(() {
+                            getRefereesConditionsEntities = responseCondition;
+                          });
+                        } else if (responseCondition is ResponseModelFailure) {
+                          print(responseCondition.message);
+                        } else {
+                          errorDialog(context);
                         }
-                      });
-                      setState(() {
-                        getListingAllRefereesEntities = response;
-                      });
-                    } else if (response is ResponseModelFailure) {
-                      print(response.message);
-                    } else {
-                      print("Connection Error");
-                    }
-                  } else {
-                    setState(() {
-                      showReferee = !showReferee;
-                      if (showConditions) {
-                        showConditions = !showConditions;
+                      }else{
+                        setState(() {
+                          if(widget.active == RefreePageEnum.condition){
+                            widget.active = RefreePageEnum.none;
+                          }else{
+                            widget.active = RefreePageEnum.condition;
+                          }
+                          widget.onChange(widget.active);
+                        });
                       }
-                    });
-                  }
-                },
-                leading: Container(
-                  width: 10,
-                  height: 50,
-                  color: Color(0xffE31E24),
+
+                    },
+                    child: widget.active == RefreePageEnum.condition ?Container(
+                      alignment: Alignment.centerRight,
+                      child:Container(
+                        width: 133,
+                          height: 50,
+                          margin: EdgeInsets.only(bottom: 10),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: staticColor
+                          ),
+                          child:Text("شروط قيد الحكام",style: GoogleFonts.cairo(color: Colors.white,fontSize: 13,fontWeight: FontWeight.w500),)) ,
+                    ):TileWidget(
+                      "شروط قيد الحكام",
+                    ),
+                  ),
                 ),
-                title: Text(
-                  "الحكام",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600),
-                ),
-                trailing: showReferee
-                    ? Icon(Icons.keyboard_arrow_down)
-                    : Icon(Icons.arrow_forward_ios),
-              ),
-            ),
-            ...getListingAllRefereesEntities.data
-                .map((e) => showReferee
-                    ? Directionality(
+                widget.active == RefreePageEnum.condition
+                    ? Container(
+                        decoration: BoxDecoration(
+                        //  borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
+                        ),
+                       // padding: EdgeInsets.all(10),
+                        child: Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: getBody(
+                                  getRefereesConditionsEntities?.data?.contents ?? "",
+                            )),
+                      )
+                    : Container(),
+                SizedBox(height: widget.active != RefreePageEnum.none ?0:10,),
+             widget.active == RefreePageEnum.condition? Container():  AnimatedContainer(
+                  duration: Duration(milliseconds: 50),
+                  child: Column(
+                    children: [
+                      Directionality(
                         textDirection: TextDirection.rtl,
-                        child: Container(
-                          padding: EdgeInsets.all(10),
+                        child: InkWell(
+                          onTap: ()async {
+                            if(refereeReferenceEntities.data == null){
+                       getRefreeMethod((){
+                                      setState(() {
+                                        if (widget.active ==
+                                            RefreePageEnum.reference) {
+                                          widget.active = RefreePageEnum.none;
+                                        } else {
+                                          widget.active =
+                                              RefreePageEnum.reference;
+                                        }
+                                        widget.onChange(widget.active);
+                                      });
+                                    });
+                            }else{
+                              setState(() {
+                                if(widget.active == RefreePageEnum.reference){
+                                  widget.active = RefreePageEnum.none;
+                                }else{
+                                  widget.active = RefreePageEnum.reference;
+                                }
+                                widget.onChange(widget.active);
+                              });
+                            }
+                          },
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Flexible(
-                                child: Container(
-                                  height: MediaQuery.of(context).size.height / 5,
-                                  child: Image.network(
-                                    e.newsThumb,
-                                    fit: BoxFit.fill,
-                                  ),
-                                ),
+                              Expanded(child: Directionality(
+                                  textDirection: TextDirection.rtl,
+                                  child: TileWidget( "مرجع الحكم"))),
+                              Row(
+                                children: [
+                                  SizedBox(width: 5,),
+                                  Container(
+                                    width: 75,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          blurRadius: 2.0,
+                                          spreadRadius: 0.0,
+                                          offset: Offset(
+                                              2.0, 2.0), // shadow direction: bottom right
+                                        )
+                                      ],
+                                    ), child: TextButton.icon(icon:Icon(Icons.remove_red_eye,size: 15,color: Colors.black,),label: Text(
+                                    'إطلاع',style: GoogleFonts.cairo(color: Colors.black,fontSize: 12),
+                                  ),onPressed: () async {
+                       getRefreeMethod((){
+                                      Get.to(()=>ViewPdfWidget(url:refereeReferenceEntities.data.url,title: "مرجع الحكم"));
+                       });
+                                  },),),
+                                  SizedBox(width: 5,),
+                                  Container(
+                                    width: 75,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                        color: staticColor,
+                                        borderRadius: BorderRadius.circular(10)
+                                    ),child: TextButton.icon(icon:Icon(Icons.file_download,color: Colors.white,size: 15,), label: Text('تحميل',style: GoogleFonts.cairo(fontSize: 12,color: Colors.white),)  ,onPressed: () async {
+                                  getRefreeMethod(()async{
+                                    if(refereeReferenceEntities.data.url != ""){
+                                      var tempDir = await getTemporaryDirectory();
+                                      String fullPath = tempDir.path +
+                                          "${refereeReferenceEntities.data.url.split("/").last}";
+                                      print('full path ${fullPath}');
+                                      setState(() {
+                                        showProgress = true;
+                                      });
+                                      bool done = await download2(
+                                          Dio(),
+                                          refereeReferenceEntities.data.url,
+                                          "${refereeReferenceEntities.data.url.split("/").last}",
+                                          context);
+                                      if(done){
+                                        setState(() {
+                                          showProgress = false;
+                                        });
+                                      }
+                                    }else{
+                                      showToast(context, "لا يوجد ملف للتحميل");
+                                    }
+                                  });
+                                  },),),
+                                ],
                               ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              Expanded(
-                                  flex: 2,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "${e.title}",
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text(
-                                            "كود المدرب",
-                                            style: TextStyle(color: Colors.grey),
-                                          ),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text(
-                                            "${e.code}",
-                                            style: TextStyle(color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text(
-                                            "الدرجة",
-                                            style: TextStyle(color: Colors.grey),
-                                          ),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text(
-                                            "${e.degree}",
-                                            style: TextStyle(color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text(
-                                            "الفرع",
-                                            style: TextStyle(color: Colors.grey),
-                                          ),
-                                          SizedBox(
-                                            width: 20,
-                                          ),
-                                          Text(
-                                            "${e.branch}",
-                                            style: TextStyle(color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  )),
                             ],
                           ),
                         ),
-                      )
-                    : Container())
-                .toList(),
-            SizedBox(
-              height: 20,
-            ),*/
-            Directionality(
-              textDirection: TextDirection.rtl,
-              child: ListTile(
-                onTap: () async{
-                  if(getRefereesConditionsEntities.data == null){
-                    var responseCondition = await sl<Cases>().refreesCondition();
-                    if (responseCondition is GetRefereesConditionsEntities) {
-                      setState(() {
-                        showConditions = !showConditions;
-                        if (showReferee) {
-                          showReferee = !showReferee;
-                        } else if (showRefereeReference) {
-                          showRefereeReference = !showRefereeReference;
-                        }
-                      });
-                      setState(() {
-                        getRefereesConditionsEntities = responseCondition;
-                      });
-                    } else if (responseCondition is ResponseModelFailure) {
-                      print(responseCondition.message);
-                    } else {
-                      print("Connection Error");
-                    }
-                  }else{
-                    setState(() {
-                      showConditions = !showConditions;
-                      if (showReferee) {
-                        showReferee = !showReferee;
-                      } else if (showRefereeReference) {
-                        showRefereeReference = !showRefereeReference;
-                      }
-                    });
-                  }
-
-                },
-                leading: Container(
-                  width: 10,
-                  height: 50,
-                  color: Color(0xffE31E24),
-                ),
-                title: Text(
-                  "شروط قيد الحكام",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600),
-                ),
-                trailing: showConditions
-                    ? Icon(Icons.keyboard_arrow_down)
-                    : Icon(Icons.arrow_forward_ios),
-              ),
-            ),
-            showConditions
-                ? Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey,
-                          blurRadius: 2.0,
-                          spreadRadius: 0.0,
-                          offset:
-                              Offset(2.0, 2.0), // shadow direction: bottom right
-                        )
-                      ],
-                    ),
-                    padding: EdgeInsets.all(10),
-                    child: Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: HtmlWidget(
-                              getRefereesConditionsEntities?.data?.contents ?? "",
-                        )),
-                  )
-                : Container(),
-            SizedBox(height: 10,),
-            AnimatedContainer(
-              duration: Duration(milliseconds: 50),
-              child: Column(
-                children: [
-                  Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: ListTile(
-                      onTap: ()async {
-                        if(refereeReferenceEntities.data.text == ""){
-                          var responseReference =
-                              await sl<Cases>().refereeReference();
-                          if (responseReference is RefereeReferenceEntities) {
-                            setState(() {
-                              print("here");
-                              showRefereeReference = !showRefereeReference;
-                              print("showReferences: $showRefereeReference");
-                              if (showReferee) {
-                                showReferee = !showReferee;
-                              } else if (showConditions) {
-                                showConditions = !showConditions;
-                              }
-                            });
-                            setState(() {
-                              refereeReferenceEntities.data.text = responseReference.data.text;
-                              refereeReferenceEntities.data.url = responseReference.data.url;
-                            });
-                          } else if (responseReference is ResponseModelFailure) {
-                            print(responseReference.message);
-                          }
-                        }else{
-                          setState(() {
-                            showRefereeReference = !showRefereeReference;
-                            if (showReferee) {
-                              showReferee = !showReferee;
-                            } else if (showConditions) {
-                              showConditions = !showConditions;
-                            }
-                          });
-                        }
-                      },
-                      leading: Container(
-                        width: 10,
-                        height: 50,
-                        color: Color(0xffE31E24),
                       ),
-                      title: Text(
-                        "مرجع الحكم",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      trailing: Container(
-                        padding: EdgeInsets.all(10),
-                        color: Color(0xffE31E24),
-                        child: InkWell(
-                          child: Icon(
-                            Icons.file_download,
-                            color: Colors.white,
-                          ),
-                          onTap: () async {
-                            if (refereeReferenceEntities.data.url != "") {
-                              var tempDir = await getTemporaryDirectory();
-                              String fullPath = tempDir.path +
-                                  "${refereeReferenceEntities.data.url.split("/").last}";
-                              print('full path $fullPath');
-                              download2(
-                                  Dio(),
-                                  refereeReferenceEntities.data.url,
-                                  "${refereeReferenceEntities.data.url.split("/").last}",
-                                  context);
-                            }
-                          },
-                        ),
-                      ),
-                    ),
+                      widget.active == RefreePageEnum.reference
+                          ? Directionality(
+                              textDirection: TextDirection.rtl,
+                              child: Container(
+                                // height: MediaQuery.of(context).size.height / 1.5,
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 10),
+                                  decoration: BoxDecoration(
+                                   // borderRadius: BorderRadius.circular(20),
+                                    color: Colors.white,
+                                  ),
+                                  //padding: EdgeInsets.all(10),
+                                  width: MediaQuery.of(context).size.width,
+                                  child: getBody(
+                                   refereeReferenceEntities.data?.text??"",
+                                  /*  padding: EdgeInsets.all(10),*/
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container(),
+                    ],
                   ),
-                  showRefereeReference
-                      ? Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: Container(
-                            // height: MediaQuery.of(context).size.height / 1.5,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey,
-                                    blurRadius: 2.0,
-                                    spreadRadius: 0.0,
-                                    offset: Offset(2.0,
-                                        2.0), // shadow direction: bottom right
-                                  )
-                                ],
-                              ),
-                              padding: EdgeInsets.all(10),
-                              width: MediaQuery.of(context).size.width,
-                              child: HtmlWidget(
-                               refereeReferenceEntities.data.text,
-                              /*  padding: EdgeInsets.all(10),*/
-                              ),
-                            ),
-                          ),
-                        )
-                      : Container(),
-                ],
-              ),
-            )
+                )
+              ],
+            ),
+            showProgress ?getLoadingContainer(context):Container()
           ],
         ),
       ),
     );
+  }
+
+  void getRefreeMethod( Function onTap) async{
+    if(refereeReferenceEntities.data == null){
+      setState(() {
+        showProgress = true;
+      });
+      var responseReference = await sl<Cases>().refereeReference();
+      setState(() {
+        showProgress = false;
+      });
+      if (responseReference is RefereeReferenceEntities) {
+        setState(() {
+          print('data::: ${responseReference.data.toJson()}');
+          refereeReferenceEntities.data = RefreeReferenceData(text: "",url: "");
+          refereeReferenceEntities.data.text = responseReference?.data?.text??"";
+          refereeReferenceEntities.data.url = responseReference?.data?.url??"";
+        });
+        onTap.call();
+      } else if (responseReference is ResponseModelFailure) {
+        print(responseReference.message);
+      }
+    }else{
+      onTap.call();
+    }
   }
 }

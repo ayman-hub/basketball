@@ -5,6 +5,7 @@ import 'package:hi_market/basket_ball/data/data_sources/constant_data.dart';
 import 'package:hi_market/basket_ball/domain/entities/response_failure.dart';
 import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/go_to.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
 
 import '../../../../../injection.dart';
 import '../../../../../res.dart';
@@ -24,6 +25,8 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   String email;
 
   final formKey = GlobalKey<FormState>();
+
+  bool showProgress = false;
 
   @override
   void initState() {
@@ -118,11 +121,16 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                      SizedBox(
                        height: 30,
                      ),
-                     FlatButton(
+                     TextButton(
                          onPressed: () async {
                            if (formKey.currentState.validate()) {
-                             var response =
-                             await sl<Cases>().forgetPassword(email);
+                             setState(() {
+                               showProgress = true;
+                             });
+                             var response = await sl<Cases>().forgetPassword(email);
+                             setState(() {
+                               showProgress  = false;
+                             });
                              if (response is bool) {
                                var platform = Theme.of(context).platform;
                                platform == TargetPlatform.iOS
@@ -189,7 +197,8 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                ),
              ),
            ],
-         )
+         ),
+          showProgress ? getLoadingContainer(context):Container()
         ],
       ),
       bottomNavigationBar: getNavigationBar(context),

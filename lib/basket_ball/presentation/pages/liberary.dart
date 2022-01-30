@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/go_to.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/image_widget_list.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/namozag_widget.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/videos_widget_list.dart';
 import 'package:hi_market/main.dart';
@@ -33,10 +36,12 @@ class _LiberaryPageState extends State<LiberaryPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
+    return WillPopScope(
+      onWillPop: () async {
+       Get.off(MyHomePage(),transition: Transition.fadeIn);
+        return false;
+      },
+      child: Stack(
         children: [
           Container(
             width: MediaQuery.of(context).size.width,
@@ -46,24 +51,29 @@ class _LiberaryPageState extends State<LiberaryPage> {
               fit: BoxFit.fill,
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.bottomLeft,
-                  height: MediaQuery.of(context).size.height / 10,
-                  padding: EdgeInsets.only(bottom: 10),
-                  child: IconButton(
-                    icon: Image.asset(
-                      Res.backimage,
-                      color: Color(0xffE31E24),
-                    ),
-                    onPressed: () {
-                      Move.to(context: context, page: MyHomePage());
-                    },
-                  ),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              centerTitle: true,
+              leading: Container(),
+              title: Text(
+                "المكتبة",
+                style: GoogleFonts.cairo(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17
                 ),
+              ),
+              actions: [
+                backIconAction(() {
+                  Get.back();
+                })
+              ],
+            ),
+            body: Column(
+              children: [
                 Container(
                   //  margin: EdgeInsets.all(30),
                   decoration: BoxDecoration(
@@ -102,7 +112,7 @@ class _LiberaryPageState extends State<LiberaryPage> {
                             child: Text(
                               "ألبوم الصور",
                               style: TextStyle(
-                                  color: Colors.black,
+                                  color:  selected == 0 ?Colors.black:Colors.white,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600),
                             ),
@@ -132,7 +142,7 @@ class _LiberaryPageState extends State<LiberaryPage> {
                             child: Text(
                               "الفيديوهات",
                               style: TextStyle(
-                                  color: Colors.black,
+                                  color: selected == 1 ?Colors.black:Colors.white,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600),
                             ),
@@ -162,7 +172,7 @@ class _LiberaryPageState extends State<LiberaryPage> {
                             child: Text(
                               "النماذج",
                               style: TextStyle(
-                                  color: Colors.black,
+                                  color:  selected == 2 ?Colors.black:Colors.white,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600),
                             ),
@@ -171,65 +181,6 @@ class _LiberaryPageState extends State<LiberaryPage> {
                       ),
                     ],
                   ),
-                  /*Stack(
-                    children: [
-                      selected == 0 ? Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
-                        ),
-                        width: MediaQuery.of(context).size.width / 3.5,
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          "ألبوم صور",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ):(selected == 1 ?Positioned(
-                        left: MediaQuery.of(context).size.width / 3.3,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width / 3.2,
-                          //margin: EdgeInsets.only(right: MediaQuery.of(context).size.width / 3.8,left: MediaQuery.of(context).size.width / 3.8 ),
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Text(
-                            "الفديوهات",
-                            style: TextStyle(
-                                color:Colors.black,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ):Positioned(
-                        left: MediaQuery.of(context).size.width / 1.51,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width / 3.5,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color:Colors.white,
-                          ),
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.all(10),
-                          child: Text(
-                            "النماذج",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      )),
-                    ],
-                  ),*/
-                ),
-                SizedBox(
-                  height: 10,
                 ),
                 Expanded(
                   flex: 8,

@@ -69,6 +69,7 @@ class Matches {
   Match match;
   String status;
   String seen;
+  String notID;
 
   Matches(
       {this.matchDate,
@@ -76,7 +77,7 @@ class Matches {
         this.matchLeague,
         this.match,
         this.status,
-        this.seen});
+        this.seen,this.notID});
 
   Matches.fromJson(Map<String, dynamic> json) {
     print("7");
@@ -91,6 +92,7 @@ class Matches {
     status = json['status']??"".toString();
     print("12");
     seen = json['seen']??"".toString();
+    notID = json['notification_id']??"".toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -103,6 +105,7 @@ class Matches {
     }
     data['status'] = this.status;
     data['seen'] = this.seen;
+    data['notification_id'] = this.notID;
     return data;
   }
 }
@@ -154,7 +157,7 @@ class Results {
     print("18");
     title = json['title']??"".toString();
     print("19");
-    logo = json['logo']??"".toString();
+    logo = (json['logo']??"").toString();
     print("20");
     result =
     json['result'] != null ? new Result.fromJson(json['result']) : null;

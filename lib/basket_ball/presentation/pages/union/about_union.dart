@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hi_market/basket_ball/data/data_sources/constant_data.dart';
 import 'package:hi_market/basket_ball/presentation/pages/union/union_board/union_board_page.dart';
 import 'package:hi_market/basket_ball/presentation/pages/union/union_decision_page.dart';
@@ -34,24 +35,36 @@ class _AboutUnionPageState extends State<AboutUnionPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            child: Image.asset(Res.wightbasketimage,fit: BoxFit.fill,),
+    return Stack(
+      children: [
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: Image.asset(Res.wightbasketimage,fit: BoxFit.fill,),
+        ),
+        Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            leading: Container(),
+            title: Text("عن الإتحاد",style: GoogleFonts.cairo(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 17),),
+            actions: [
+              IconButton(onPressed: (){
+                if(unionBoard == UnionBoard.none || selected != 1){
+                      return Move.to(context: context, page: MyHomePage());
+                    }else{
+                  setState(() {
+                    unionBoard = UnionBoard.none;
+                  });
+                }
+                  }, icon: Icon(Icons.arrow_forward,color: Colors.black,))
+            ],
           ),
-          Container(
-            padding: EdgeInsets.all(10),
+          body: Container(
+            padding: EdgeInsets.only(right: 10,left: 10,bottom: 10),
             child: Column(
               children: [
-                Container(
-                    alignment: Alignment.bottomLeft,
-                    height: MediaQuery.of(context).size.height / 10,
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: IconButton(icon: Image.asset(Res.backimage,color: Color(0xffE31E24),), onPressed: () { Move.to(context: context, page: MyHomePage()); },)),
                 Container(
                 //  margin: EdgeInsets.all(30),
                   decoration: BoxDecoration(
@@ -86,7 +99,7 @@ class _AboutUnionPageState extends State<AboutUnionPage> {
                             ),
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(10),
-                            child: Text("الإتحاد",style: TextStyle(color:Colors.black,fontSize: 15,fontWeight: FontWeight.w600),),
+                            child: Text("الإتحاد",style: GoogleFonts.cairo(color:selected == 0?Colors.black:Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),
                           ),
                         ),
                       ),
@@ -104,7 +117,7 @@ class _AboutUnionPageState extends State<AboutUnionPage> {
                             ),
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(10),
-                            child: Text("مجلس الإتحاد",style: TextStyle(color:Colors.black,fontSize: 15,fontWeight: FontWeight.w600),),
+                            child: Text("مجلس الإتحاد",style: GoogleFonts.cairo(color:selected == 1 ?Colors.black:Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),
                           ),
                         ),
                       ),
@@ -117,12 +130,12 @@ class _AboutUnionPageState extends State<AboutUnionPage> {
                           },
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius:selected == 2 ? BorderRadius.circular(10): BorderRadius.only(topLeft: Radius.circular(10),bottomLeft: Radius.circular(10)),
+                              borderRadius:selected == 2 ? BorderRadius.circular(10): BorderRadius.only(topRight: Radius.circular(10),bottomRight: Radius.circular(10)),
                               color:selected == 2 ? Colors.white: Color(0xffE31E24),
                             ),
                             alignment: Alignment.center,
                             padding: EdgeInsets.all(10),
-                            child: Text("قرارات المجلس",style: TextStyle(color:Colors.black,fontSize: 15,fontWeight: FontWeight.w600),),
+                            child: Text("قرارات المجلس",style: GoogleFonts.cairo(color:selected == 2 ?Colors.black:Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),
                           ),
                         ),
                       ),
@@ -141,7 +154,7 @@ class _AboutUnionPageState extends State<AboutUnionPage> {
                         padding: EdgeInsets.all(10),
                         child: Text(
                           "تاريخ الإتحاد",
-                          style: TextStyle(
+                          style: GoogleFonts.cairo(
                               color: Colors.black,
                               fontSize: 15,
                               fontWeight: FontWeight.w600),
@@ -158,7 +171,7 @@ class _AboutUnionPageState extends State<AboutUnionPage> {
                               borderRadius: BorderRadius.circular(10)),
                           child: Text(
                             "مجلس الإتحاد",
-                            style: TextStyle(
+                            style: GoogleFonts.cairo(
                                 color:Colors.black,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600),
@@ -176,7 +189,7 @@ class _AboutUnionPageState extends State<AboutUnionPage> {
                           padding: EdgeInsets.all(10),
                           child: Text(
                             "قرارات المجلس",
-                            style: TextStyle(
+                            style: GoogleFonts.cairo(
                                 color: Colors.black,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600),
@@ -194,9 +207,9 @@ class _AboutUnionPageState extends State<AboutUnionPage> {
               ],
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: getNavigationBar(context),
+          bottomNavigationBar: getNavigationBar(context),
+        ),
+      ],
     );
   }
 }

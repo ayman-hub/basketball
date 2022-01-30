@@ -38,6 +38,8 @@ class _RefereeSignUpPageState extends State<RefereeSignUpPage> {
   String phone;
 
   String password;
+  String weight;
+  String height;
 
   final formKey = GlobalKey<FormState>();
 
@@ -47,7 +49,11 @@ class _RefereeSignUpPageState extends State<RefereeSignUpPage> {
   GovernmentData govertmentID;
 
   Future getFutureData;
-ProgressDialog dialog;
+
+
+  bool showProgress = false;
+
+  String loginName;
 
   showDialogWidget() async {
     int showSelected = await showDialog<int>(
@@ -74,8 +80,8 @@ ProgressDialog dialog;
                             Navigator.pop(dialogContext, 0);
                           },
                           child: Image.asset(
-                            "images/close.png",
-                            scale: 3,
+                            "images/backimage.png",
+                            //scale: 3,
                           ),
                         ),
                         Expanded(
@@ -234,10 +240,13 @@ ProgressDialog dialog;
   }
   showGovernmentWidget() async {
     GovernmentEntities governmentEntities = GovernmentEntities(data: List());
-    ProgressDialog progressDialog = ProgressDialog(context);
-    progressDialog.show();
+setState(() {
+  showProgress = true;
+});
     var response = await sl<Cases>().getGovernmentEntities();
-    progressDialog.hide();
+   setState(() {
+     showProgress = false;
+   });
     if(response is GovernmentEntities){
       setState(() {
         governmentEntities = response;
@@ -302,13 +311,13 @@ ProgressDialog dialog;
   @override
   void initState() {
     super.initState();
-    dialog = ProgressDialog(context);
+
   }
 
   @override
   void dispose() {
     super.dispose();
-    dialog.hide();
+
   }
 
   @override
@@ -424,7 +433,35 @@ ProgressDialog dialog;
                           textDirection: TextDirection.rtl,
                           child: TextFormField(
                             maxLines: 1,
-                            keyboardType: TextInputType.numberWithOptions(),
+                            onChanged: (value) {
+                                loginName = value;
+                            },
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "من فضلك املأ الخانات";
+                              }
+                              return null;
+                            },
+                            style: TextStyle(fontSize: 15.0),
+                            decoration: InputDecoration(
+                                hintText: "اسم المستخدم",
+                                contentPadding:
+                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                labelStyle: TextStyle(fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(left: 10,right: 10,top: 5,bottom: 5),
+                        child: Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: TextFormField(
+                            maxLines: 1,
                             onChanged: (value) {
                               setState(() {
                                 phone = value;
@@ -520,6 +557,66 @@ ProgressDialog dialog;
                           padding: EdgeInsets.only(left: 10,right: 10,top: 5,bottom: 5),
                           child: TextFormField(
                             maxLines: 1,
+                            keyboardType: TextInputType.numberWithOptions(),
+                            onChanged: (value) {
+                             height = value;
+                            },
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "من فضلك املأ الخانات";
+                              }
+                              return null;
+                            },
+                            style: TextStyle(fontSize: 15.0),
+                            decoration: InputDecoration(
+                                hintText: "الطول",
+                                contentPadding:
+                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0)),
+                                labelStyle: TextStyle(fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Container(
+                          padding: EdgeInsets.only(left: 10,right: 10,top: 5,bottom: 5),
+                          child: TextFormField(
+                            maxLines: 1,
+                            keyboardType: TextInputType.numberWithOptions(),
+                            onChanged: (value) {
+                              weight = value;
+                            },
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "من فضلك املأ الخانات";
+                              }
+                              return null;
+                            },
+                            style: TextStyle(fontSize: 15.0),
+                            decoration: InputDecoration(
+                                hintText: "الوزن",
+                                contentPadding:
+                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0)),
+                                labelStyle: TextStyle(fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Container(
+                          padding: EdgeInsets.only(left: 10,right: 10,top: 5,bottom: 5),
+                          child: TextFormField(
+                            maxLines: 1,
                             obscureText: true,
                             onChanged: (value) {
                               setState(() {
@@ -536,7 +633,39 @@ ProgressDialog dialog;
                             decoration: InputDecoration(
                                 hintText: "الرقم السري",
                                 contentPadding:
-                                    EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0)),
+                                labelStyle: TextStyle(fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Container(
+                          padding: EdgeInsets.only(left: 10,right: 10,top: 5,bottom: 5),
+                          child: TextFormField(
+                            maxLines: 1,
+                            obscureText: true,
+                            onChanged: (value) {
+                              //  confirmPassword = value;
+                            },
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "من فضلك املأ الخانات";
+                              }else if(value != password){
+                                return "تأكيد الرقم السري غير مظابق للرقم السري";
+                              }
+                              return null;
+                            },
+                            style: TextStyle(fontSize: 15.0),
+                            decoration: InputDecoration(
+                                hintText: "تأكيد الرقم السري",
+                                contentPadding:
+                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10.0)),
                                 labelStyle: TextStyle(fontWeight: FontWeight.w700)),
@@ -604,21 +733,28 @@ ProgressDialog dialog;
                                   ? "international"
                                   : "local"}");
                               if (formKey.currentState.validate()) {
-                                dialog.show();
+                                setState(() {
+                                  showProgress = true;
+                                });
                                 var response = await sl<Cases>().judgeRegister(
                                     firstName: firstName,
                                     lastName: lastName,
                                     email: email,
                                     password: password,
                                     phone: phone,
+                                    weight: weight,
+                                    height: height,
+                                    loginName:loginName,
                                     nationalID: national_id,
                                     governmentID: govertmentID.id.toString(),
                                     type: selected == 0
                                         ? "international"
                                         : "local");
-                                dialog.hide();
+                            setState(() {
+                              showProgress = false;
+                            });
                                 if (response is bool) {
-                                  dialog.hide();
+
                                   var platform = Theme.of(context).platform;
                                   platform == TargetPlatform.iOS
                                       ? Get.snackbar("", "",
@@ -651,7 +787,6 @@ ProgressDialog dialog;
                                           ))
                                       : showToast(context, 'Connection Error');
                                 }
-                                dialog.hide();
                               }
                             }else{
                               showToast(context, "يجب تحديد نوع الحكم و المحافظة أولا");
@@ -797,6 +932,7 @@ ProgressDialog dialog;
               ],
             ),
           ),
+          showProgress?getLoadingContainer(context):Container()
         ],
       ),
       bottomNavigationBar: getNavigationBar(context),

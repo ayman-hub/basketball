@@ -34,12 +34,15 @@ class Data {
 
   Data.fromJson(Map<String, dynamic> json) {
     String str = json['streaming_link'].toString();
+    String link = "";
    String   start = "http";
     String end = '\"';
     final startIndex = str.indexOf(start);
     final endIndex = str.indexOf(end, startIndex + start.length);
     print(str.substring(startIndex + start.length, endIndex));
-    streamLink ="http${str.substring(startIndex + start.length, endIndex)}";
+    link ="http${str.substring(startIndex + start.length, endIndex)}";
+    streamLink = link.replaceAll("embed/","watch?v=");
+    print('Link::: $streamLink');
   }
 
   Map<String, dynamic> toJson() {

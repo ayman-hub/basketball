@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -178,7 +177,7 @@ class DataRepositry extends DomainRepositry {
 
   @override
   Future getManagerAccordingToBranches() {
-   return remoteData.getManagerAccordingToBranches();
+    return remoteData.getManagerAccordingToBranches();
   }
 
   @override
@@ -238,17 +237,40 @@ class DataRepositry extends DomainRepositry {
 
   @override
   Future getJudgeMatchesEntities() {
-   return remoteData.getJudgeMatchesEntities();
+    return remoteData.getJudgeMatchesEntities();
   }
 
   @override
   Future judgeNotificationAction({String not_id, bool res}) {
-    return remoteData.judgeNotificationAction(not_id: not_id,res: res);
+    return remoteData.judgeNotificationAction(not_id: not_id, res: res);
   }
 
   @override
-  Future judgeRegister({String firstName, String lastName, String email, String password, String phone,String type,String nationalID,String governmentID}) {
-   return remoteData.judgeRegister(firstName: firstName,lastName: lastName,email: email,phone: phone,password: password,nationalID:nationalID,type: type,governmentID: governmentID);
+  Future judgeRegister({
+    String firstName,
+    String lastName,
+    String email,
+    String password,
+    String phone,
+    String type,
+    String weight,
+    String height,
+    String loginName,
+    String nationalID,
+    String governmentID,
+  }) {
+    return remoteData.judgeRegister(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phone: phone,
+        weight: weight,
+        height: height,
+        loginName:loginName,
+        password: password,
+        nationalID: nationalID,
+        type: type,
+        governmentID: governmentID);
   }
 
   @override
@@ -258,12 +280,13 @@ class DataRepositry extends DomainRepositry {
 
   @override
   Future login({String email, String password}) {
-   return remoteData.login(email: email,password: password);
+    return remoteData.login(email: email, password: password);
   }
 
   @override
   Future contactUs({String email, String name, String message, String phone}) {
-    return remoteData.contactUs(email: email,name: name,message: message,phone: phone);
+    return remoteData.contactUs(
+        email: email, name: name, message: message, phone: phone);
   }
 
   @override
@@ -273,7 +296,7 @@ class DataRepositry extends DomainRepositry {
 
   @override
   Future homePageSearch(String search) {
-   return remoteData.homePageSearch(search);
+    return remoteData.homePageSearch(search);
   }
 
   @override
@@ -282,8 +305,19 @@ class DataRepositry extends DomainRepositry {
   }
 
   @override
-  Future userRegister({String firstName, String lastName, String email, String password, String phone,String type}) {
-    return remoteData.userRegister(firstName: firstName,lastName: lastName,email: email,password: password,phone: phone);
+  Future userRegister(
+      {String firstName,
+      String lastName,
+      String email,
+      String password,
+      String phone,
+      String type}) {
+    return remoteData.userRegister(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        phone: phone);
   }
 
   @override
@@ -306,8 +340,6 @@ class DataRepositry extends DomainRepositry {
     return remoteData.socialMediaLogin(name, email, role);
   }
 
-
-
   @override
   Future updateUserPassword(String password) {
     return remoteData.updateUserPassword(password);
@@ -320,7 +352,7 @@ class DataRepositry extends DomainRepositry {
 
   @override
   Future childrenCompetitionInitiationForChildren(String c_id) {
-   return remoteData.childrenCompetitionInitiationForChildren(c_id);
+    return remoteData.childrenCompetitionInitiationForChildren(c_id);
   }
 
   @override
@@ -329,7 +361,8 @@ class DataRepositry extends DomainRepositry {
   }
 
   @override
-  Future<void> setUserPassword(UserNameAndPasswordEntities userNameAndPasswordEntities) {
+  Future<void> setUserPassword(
+      UserNameAndPasswordEntities userNameAndPasswordEntities) {
     return getSharedPreference.setUserPassword(userNameAndPasswordEntities);
   }
 
@@ -349,13 +382,21 @@ class DataRepositry extends DomainRepositry {
   }
 
   @override
-  Future matchReportEntry(String matchID, String report,File image) {
-    return remoteData.matchReportEntry(matchID, report,image);
+  Future matchReportEntry(String matchID, String report, File image) {
+    return remoteData.matchReportEntry(matchID, report, image);
   }
 
   @override
-  Future matchResultEntry(String matchID, String team1ID, String team2ID, String team1Points, String team2Points,List<ReportPlayerEntities> reportPlayers) {
-   return remoteData.matchResultEntry(matchID, team1ID, team2ID, team1Points, team2Points,reportPlayers: reportPlayers);
+  Future matchResultEntry(
+      String matchID,
+      String team1ID,
+      String team2ID,
+      String team1Points,
+      String team2Points,
+      List<ReportPlayerEntities> reportPlayers) {
+    return remoteData.matchResultEntry(
+        matchID, team1ID, team2ID, team1Points, team2Points,
+        reportPlayers: reportPlayers);
   }
 
   @override
@@ -370,7 +411,7 @@ class DataRepositry extends DomainRepositry {
 
   @override
   Future getMatchEntities(String matchID) {
-   return remoteData.getMatchEntities(matchID);
+    return remoteData.getMatchEntities(matchID);
   }
 
   @override
@@ -390,11 +431,12 @@ class DataRepositry extends DomainRepositry {
 
   @override
   GetMatchIdEntities getMatchIdSharedPreference() {
-   return getSharedPreference.getMatchIdSharedPreference();
+    return getSharedPreference.getMatchIdSharedPreference();
   }
 
   @override
-  Future<void> setMatchIdSharedPreference(GetMatchIdEntities getMatchIdEntities) {
+  Future<void> setMatchIdSharedPreference(
+      GetMatchIdEntities getMatchIdEntities) {
     return getSharedPreference.setMatchIdSharedPreference(getMatchIdEntities);
   }
 
@@ -404,8 +446,10 @@ class DataRepositry extends DomainRepositry {
   }
 
   @override
-  Future<void> setMatchReportIDSharedPreference(GetMatchIdEntities getMatchIdEntities) {
-   return getSharedPreference.setMatchReportIDSharedPreference(getMatchIdEntities);
+  Future<void> setMatchReportIDSharedPreference(
+      GetMatchIdEntities getMatchIdEntities) {
+    return getSharedPreference
+        .setMatchReportIDSharedPreference(getMatchIdEntities);
   }
 
   @override
@@ -414,8 +458,9 @@ class DataRepositry extends DomainRepositry {
   }
 
   @override
-  Future<void> setNotificationIdSharedPreference( getNotificationIdEntities) {
-   return getSharedPreference.setNotificationIdSharedPreference(getNotificationIdEntities);
+  Future<void> setNotificationIdSharedPreference(getNotificationIdEntities) {
+    return getSharedPreference
+        .setNotificationIdSharedPreference(getNotificationIdEntities);
   }
 
   @override
@@ -424,8 +469,8 @@ class DataRepositry extends DomainRepositry {
   }
 
   @override
-  Future pushNotification(LoginDataEntities login,bool cancelNotification) {
-    return remoteData.pushNotification(login,cancelNotification);
+  Future pushNotification(LoginDataEntities login, bool cancelNotification) {
+    return remoteData.pushNotification(login, cancelNotification);
   }
 
   @override
@@ -444,8 +489,10 @@ class DataRepositry extends DomainRepositry {
   }
 
   @override
-  Future updateUserProfile(String phone, String nationalID, String bankName, String accountNo, String iban, String swiftCode) {
-    return remoteData.updateUserProfile(phone, nationalID, bankName, accountNo, iban, swiftCode);
+  Future updateUserProfile(String phone, String nationalID, String bankName,
+      String accountNo, String iban, String swiftCode) {
+    return remoteData.updateUserProfile(
+        phone, nationalID, bankName, accountNo, iban, swiftCode);
   }
 
   @override

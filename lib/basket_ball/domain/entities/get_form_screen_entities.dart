@@ -38,7 +38,7 @@ class Data {
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     title = json['title'].toString();
-    content = json['content'].toString();
+    content = (json['content'] == null || json['content'] == ""?"    لا يوجد بيانات     ":json['content']).toString();
     attachmentUrl = json['attachment_url'].toString();
   }
 

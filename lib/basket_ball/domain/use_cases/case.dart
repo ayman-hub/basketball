@@ -205,6 +205,9 @@ class Cases {
       String password,
       String phone,
       String type,
+        String weight,
+        String height,
+       String loginName,
         String nationalID,
         String governmentID
       }) {
@@ -214,6 +217,9 @@ class Cases {
         email: email,
         password: password,
         phone: phone,
+        weight:weight,
+        height:height,
+      loginName: loginName,
       nationalID:nationalID,
       governmentID: governmentID,
       type: type

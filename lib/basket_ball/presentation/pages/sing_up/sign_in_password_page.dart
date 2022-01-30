@@ -5,6 +5,7 @@ import 'package:hi_market/basket_ball/domain/entities/response_failure.dart';
 import 'package:hi_market/basket_ball/domain/entities/user_data_info.dart';
 import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/go_to.dart';
+import 'package:hi_market/main.dart';
 
 import '../../../../injection.dart';
 import '../../../../res.dart';
@@ -143,7 +144,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       SizedBox(
                         height: 5,
                       ),
-                      FlatButton(
+                      TextButton(
                           onPressed: () async {
                             if (formkey.currentState.validate()) {
                               var response = await sl<Cases>()
@@ -212,8 +213,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 ),
               ),
               SizedBox(height: 10,),
-              FlatButton(
-                onPressed: () => Move.to(context: context, page: MainPage()),
+              TextButton(
+                onPressed: () => Move.back(context),
                 child: Container(
               //    margin: EdgeInsets.only(left: 30),
                   // decoration: BoxDecoration(border: Border.all(color: Colors.white)),

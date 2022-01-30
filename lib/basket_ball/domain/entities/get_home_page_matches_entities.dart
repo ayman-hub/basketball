@@ -39,8 +39,8 @@ class GetHomePageMatchesData {
 
   GetHomePageMatchesData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    title = json['title'].toString();
-    time = json['time'].toString();
+    title = (json['title']??"").toString();
+    time = (json['time']??"").toString();
     if (json['teams'] != null) {
       teams = new List<Teams>();
       json['teams'].forEach((v) {
@@ -51,7 +51,7 @@ class GetHomePageMatchesData {
     print("sssssmm");
     print("result:${json['result']}");
     if(json['result']!= false ){
-      List dd = json['result'];
+      List dd = json['result']??"";
       print("runType:${dd.first.runtimeType}");
       if (json['teams'] != null&&json['result']!=null&&dd.first.runtimeType.toString() == "_InternalLinkedHashMap<String, dynamic>") {
         print("sssss");
@@ -104,7 +104,7 @@ class Teams {
 
   Teams.fromJson(Map<String, dynamic> json) {
     name = json['name']??"".toString();
-    thumb = json['thumb'].toString();
+    thumb = (json['thumb']??"").toString();
     id = json['team_id'].toString();
   }
 

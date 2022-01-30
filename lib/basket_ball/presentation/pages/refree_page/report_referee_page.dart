@@ -12,8 +12,9 @@ import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/refree_main_page.dart';
 import 'package:hi_market/basket_ball/presentation/pages/refree_page/refree_report_match_page.dart';
 import 'package:hi_market/basket_ball/presentation/widgets/go_to.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+
 
 import '../../../../injection.dart';
 import '../../../../res.dart';
@@ -36,7 +37,7 @@ class _ReportRefereePageState extends State<ReportRefereePage> {
   int selected = 2;
 
   bool showEditProfile = false;
-
+bool showProgress = false;
   String nationalID;
 
   String phone;
@@ -63,7 +64,13 @@ class _ReportRefereePageState extends State<ReportRefereePage> {
   }
 
   getNotificationData() async {
+    setState(() {
+      showProgress = true;
+    });
     var response = await sl<Cases>().getNotification();
+    setState(() {
+      showProgress = false;
+    });
     if (response is NotificationEntities) {
       Move.to(context: context, page: NotificationPage(notificationEntities: response,));
     } else if (response is ResponseModelFailure) {
@@ -76,14 +83,7 @@ class _ReportRefereePageState extends State<ReportRefereePage> {
           ))
           : showToast(context, response.message);
     } else {
-      var platform = Theme.of(context).platform;
-      platform == TargetPlatform.iOS
-          ? Get.snackbar("", "",
-          messageText: Text(
-            'Connection Error',
-            textAlign: TextAlign.center,
-          ))
-          : showToast(context, 'Connection Error');
+     errorDialog(context);
     }
   }
 
@@ -185,11 +185,14 @@ class _ReportRefereePageState extends State<ReportRefereePage> {
                                 IconButton(
                                   icon: Image.asset("images/retern.png"),
                                   onPressed: () async {
-                                    ProgressDialog dialog = ProgressDialog(context);
-                                    dialog.show();
+                                    setState(() {
+                                      showProgress = true;
+                                    });
                                     var response =
                                         await sl<Cases>().refereeReport();
-                                    dialog.hide();
+                                    setState(() {
+                                      showProgress = false;
+                                    });
                                     if (response is RefereeReportEntities) {
                                       setState(() {
                                         widget.refereeReportEntities = response;
@@ -198,7 +201,7 @@ class _ReportRefereePageState extends State<ReportRefereePage> {
                                         is ResponseModelFailure) {
                                       showToast(context, response.message);
                                     } else {
-                                      showToast(context, "Connection Error");
+                                    errorDialog(context);
                                     }
                                   },
                                 )
@@ -1043,6 +1046,7 @@ class _ReportRefereePageState extends State<ReportRefereePage> {
                 ],
               ),
             ),
+            showProgress ?getLoadingContainer(context):Container()
           ],
         ),
       ),
@@ -1055,8 +1059,12 @@ class _ReportRefereePageState extends State<ReportRefereePage> {
     if (image != null) {
       setState(() {
         widget.image = File(image.path);
+        showProgress = true;
       });
       var respond = await sl<Cases>().updateUserPicture(widget.image);
+      setState(() {
+        showProgress = false;
+      });
       if (respond is bool) {
         print("nnnnnnnnnnnnnnn");
       }
@@ -1080,14 +1088,7 @@ class _ReportRefereePageState extends State<ReportRefereePage> {
                 ))
             : showToast(context, failure.message);
       } else {
-        var platform = Theme.of(context).platform;
-        platform == TargetPlatform.iOS
-            ? Get.snackbar("", "",
-                messageText: Text(
-                  "error connection",
-                  textAlign: TextAlign.center,
-                ))
-            : showToast(context, "error connection");
+       errorDialog(context);
       }
     }
     /*  if(_image == null){

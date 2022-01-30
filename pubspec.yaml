@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+12
+version: 1.0.0+20
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -32,36 +32,41 @@ dependencies:
   cupertino_icons: ^1.0.2
   dio: ^4.0.0
   get_it: ^3.1.0
-  shared_preferences: ^2.0.5
+  shared_preferences:
   fluttertoast: ^3.1.3
   solid_bottom_sheet: ^0.1.9
-  path_provider: ^2.0.1
+ # path_provider:
   progress_indicators: ^0.1.4
-  badges: ^1.1.1
-  get: ^4.1.4
-  http: ^0.13.2
+  get: ^3.26.0
   liquid_pull_to_refresh: ^1.1.1
   flutter_launcher_icons: ^0.9.0
   path:
   share: ^0.6.4+3
-  pin_code_fields: ^2.3.0+3
-  streamqflite: ^1.0.0
   youtube_player_flutter: ^8.0.0
   chewie:
   url_launcher: ^5.7.5
   image_picker: ^0.7.4
   flutter_html: ^1.3.0
-  google_fonts: ^2.0.0
+  google_fonts:
   progress_dialog: ^1.2.1
   open_file: ^3.0.3
   move_to_background: ^0.2.0
   firebase_messaging: ^7.0.3
-  flutter_widget_from_html: ^0.5.2+1
   flutter_plugin_android_lifecycle: ^2.0.1
   firebase_core: ^0.5.0
-  webview_flutter:
-  flutter_webview_plugin: ^0.4.0
-  flutter_inappwebview: ^5.3.2
+  #flutter_cached_pdfview:
+  #pdf: ^3.4.2
+  badges: ^2.0.1
+  fancy_bottom_navigation: ^0.3.3
+  flutter_svg:
+  lottie: ^1.1.0
+  native_pdf_view: ^4.1.0
+ # flutter_gifimage: ^1.0.1
+  transformer_page_view: ^0.1.6
+  #neeko:
+ # flutter_vlc_player:
+ # better_player: any
+
 
 
 
@@ -86,12 +91,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - images/ youtube.svg
     - images/addUser.png
     - images/Al_Ahly_SC_logo.png
     - images/backimage.png
     - images/ballimage.png
+    - images/baseketball_splash.json
     - images/basket.png
     - images/basketball.jpg
+    - images/basketball_load.json
     - images/basketballicon.png
     - images/basketiconlistimage.png
     - images/bell.png
@@ -102,10 +110,21 @@ flutter:
     - images/editMatch.png
     - images/email_blocker.png
     - images/email_contact_us.png
-    - images/facebook.png
+    - images/error.svg
+    - images/facebook.svg
     - images/gameimage.jpeg
     - images/Group_362.png
+    - images/Group_529.svg
+    - images/Group_530.svg
+    - images/Group_531.svg
+    - images/Group_532.svg
+    - images/Group_533.svg
+    - images/Group_534.svg
+    - images/Group_535.svg
+    - images/Group_537.svg
     - images/hiclipart.com.png
+    - images/images.svg
+    - images/instagram.svg
     - images/instgram.png
     - images/launch_icon.png
     - images/liberaryimage.jpeg
@@ -115,6 +134,7 @@ flutter:
     - images/money.png
     - images/mortaga3.png
     - images/nadiimage.png
+    - images/paper.svg
     - images/phone_contact_us.png
     - images/Rectangle.png
     - images/Rectangle_731.png
@@ -124,24 +144,16 @@ flutter:
     - images/search.png
     - images/sideMenuLogo.png
     - images/Smouha_SC_logo.png
-    - images/splash_1.png
-    - images/splash_10.png
-    - images/splash_2.png
-    - images/splash_3.png
-    - images/splash_4.png
-    - images/splash_5.png
-    - images/splash_6.png
-    - images/splash_7.png
-    - images/splash_8.png
-    - images/splash_9.png
+    - images/splash.json
     - images/success.png
-    - images/twitter.png
+    - images/twitter.svg
     - images/user.png
     - images/warning.png
     - images/whistle.png
     - images/wightballimage.jpeg
     - images/wightbasketimage.jpeg
     - images/x_button.png
+    - images/Youtube.svg
     - images/youtube_image.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

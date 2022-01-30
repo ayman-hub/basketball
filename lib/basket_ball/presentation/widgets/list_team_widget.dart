@@ -56,7 +56,7 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                   height: 10,
                 ),
                 Container(
-                  color: Colors.grey[200],
+                  color: Colors.black.withOpacity(0.5),
                   padding: EdgeInsets.all(10),
                   child: Directionality(
                     textDirection: TextDirection.rtl,
@@ -77,7 +77,7 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                                     style: TextStyle(
                                         fontSize: MediaQuery.of(context).size.width / 20,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black),
+                                        color: Colors.white),
                                   ),
                                 ),
                                 Expanded(
@@ -86,7 +86,7 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                                       style: TextStyle(
                                           fontSize: 17,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.black)),
+                                          color: Colors.white)),
                                 ),
                                 SizedBox(),
                                 Expanded(
@@ -95,7 +95,7 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.black)),
+                                          color: Colors.white)),
                                 ),
                       Expanded(
 
@@ -104,7 +104,7 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.black)),
+                                          color: Colors.white)),
                                 ),
                                 Flexible(
                                   flex: 2,
@@ -112,7 +112,7 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.black)),
+                                          color: Colors.white)),
                                 ),
                               ],
                             ),
@@ -144,11 +144,11 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                               Container(
                                 //decoration: BoxDecoration(border:Border.all(color:Colors.black)),
                                 child: Text(
-                                  "${i}",
+                                  "$i",
                                   style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.black),
+                                      color: i == 1 ?Colors.white:Colors.black),
                                 ),
                               ),
                               Container(
@@ -158,7 +158,7 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                                     style: TextStyle(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black)),
+                                        color:i == 1 ?Colors.white:Colors.black)),
                               ),
                               Container(
                                 //decoration: BoxDecoration(border:Border.all(color:Colors.black)),
@@ -166,7 +166,7 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                                     style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black),textAlign: TextAlign.left,),
+                                        color: i == 1 ?Colors.white:Colors.black),textAlign: TextAlign.left,),
                               ),
                               Container(
                                 //decoration: BoxDecoration(border:Border.all(color:Colors.black)),
@@ -174,15 +174,15 @@ class _ListTeamWidgetState extends State<ListTeamWidget> {
                                     style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black),textAlign: TextAlign.left,),
+                                        color: i == 1 ?Colors.white:Colors.black),textAlign: TextAlign.left,),
                               ),
                               Container(
                                 //decoration: BoxDecoration(border:Border.all(color:Colors.black)),
-                                child: Text("${e.gb}",
+                                child: Text("${e.gp}",
                                     style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black),textAlign: TextAlign.left,),
+                                        color: i == 1 ?Colors.white:Colors.black),textAlign: TextAlign.left,),
                               ),
                             ],
                           ),

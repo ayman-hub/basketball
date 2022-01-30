@@ -1,18 +1,25 @@
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hi_market/basket_ball/data/data_sources/constant_data.dart';
 import 'package:hi_market/basket_ball/domain/entities/get_code_rules_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/get_listing_all_referees_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/get_referee_conditions_entities.dart';
 import 'package:hi_market/basket_ball/domain/entities/response_failure.dart';
 import 'package:hi_market/basket_ball/domain/use_cases/case.dart';
+import 'package:hi_market/basket_ball/presentation/pages/sport_details/sport_details.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/TileWidget.dart';
+import 'package:hi_market/basket_ball/presentation/widgets/loading_widget.dart';
 import 'package:solid_bottom_sheet/solid_bottom_sheet.dart';
 
 import '../../../../injection.dart';
 import '../../../../res.dart';
 
 class TrainersPage extends StatefulWidget {
-  TrainersPage({Key key}) : super(key: key);
+  TrainersPage({Key key, this.onChange, this.active}) : super(key: key);
+  ValueChanged<RefreePageEnum> onChange;
+  RefreePageEnum active;
 
   @override
   _TrainersPageState createState() {
@@ -21,34 +28,28 @@ class TrainersPage extends StatefulWidget {
 }
 
 class _TrainersPageState extends State<TrainersPage> {
-  bool showTrainer = false;
+  bool showProgress = false;
 
+  int selectedIndex;
 
-  bool showRules = false;
-
-
-  GetCoachesRulesEntities getCoachesRulesEntities = GetCoachesRulesEntities(data: List());
-  GetRefereesConditionsEntities getRefereesConditionsEntities = GetRefereesConditionsEntities();
 /*  GetListingAllRefereesEntities getListingAllRefereesEntities = GetListingAllRefereesEntities(data: List());*/
-  getData()async{
-  /*  var response = await sl<Cases>().listingCoaches();
-    if (response is GetListingAllRefereesEntities) {
-      setState(() {
-        getListingAllRefereesEntities = response;
-      });
-    } else if (response is ResponseModelFailure) {
-      print(response.message);
-    }   else {
-      print("Connection Error");
-    }*/
+  getData() async {
+    setState(() {
+      showProgress = true;
+    });
     var responseCondition = await sl<Cases>().coachesTermsConditions();
+    setState(() {
+      showProgress = false;
+    });
     if (responseCondition is GetRefereesConditionsEntities) {
       setState(() {
-        getRefereesConditionsEntities = responseCondition;
+        getRefereesConditionsEntitiesTrain = responseCondition;
+        widget.active = RefreePageEnum.showTrainer;
+        widget.onChange(widget.active);
       });
     } else if (responseCondition is ResponseModelFailure) {
       print(responseCondition.message);
-    }   else {
+    } else {
       print("Connection Error");
     }
     var responseRules = await sl<Cases>().coachesRules();
@@ -58,16 +59,24 @@ class _TrainersPageState extends State<TrainersPage> {
       });
     } else if (responseRules is ResponseModelFailure) {
       print(responseRules.message);
-    }   else {
+    } else {
       print("Connection Error");
+    }
+  }
+
+
+  @override
+  void didUpdateWidget(TrainersPage oldWidget) {
+    if(widget.active == RefreePageEnum.none){
+      setState(() {
+        selectedIndex = null;
+      });
     }
   }
 
   @override
   void initState() {
     super.initState();
-    //getRefereesConditionsEntities.data.contents = "";
-    getData();
   }
 
   @override
@@ -81,237 +90,150 @@ class _TrainersPageState extends State<TrainersPage> {
     return Scaffold(
       body: Container(
         padding: EdgeInsets.all(10),
-        child: ListView(
+        child: Stack(
           children: [
-          /*  Directionality(
-              textDirection: TextDirection.rtl,
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 50),
-                child: Column(
-                  children: [
-                    ListTile(
-                      onTap: () {
-                        setState(() {
-                          showTrainer = !showTrainer;
-                          if (showRules) {
-                            showRules = !showRules;
-                          }
-                        });
-                      },
-                      leading: Container(
-                        width: 10,
-                        height: 50,
-                        color: Color(0xffE31E24),
-                      ),
-                      title: Text(
-                        "المدربين",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      trailing: showTrainer?Icon(Icons.keyboard_arrow_down):Icon(Icons.arrow_forward_ios),
-                    ),
-                    ...getListingAllRefereesEntities.data.map((e) => showTrainer ?Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Container(height: MediaQuery.of(context).size.height / 5,
-                                child: Image.network(e.newsThumb),
-                              ),
-                            ),
-                            Expanded(
-                                flex: 2
-                                ,child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text("${e.title}",style: TextStyle(color: Colors.black,fontSize: 25,fontWeight: FontWeight.bold),),
-                                SizedBox(height: 20,),
-                                Row(
-                                  children: [
-                                    SizedBox(width: 10,),
-                                    Text("كود المدرب",style: TextStyle(color: Colors.grey),),
-                                    SizedBox(width: 20,),
-                                    Text("${e.code}",style: TextStyle(color: Colors.black),),
-
-                                  ],
-                                ),
-                                SizedBox(height: 10,),
-                                Row(
-                                  children: [
-                                    SizedBox(width: 10,),
-                                    Text("الدرجة",style: TextStyle(color: Colors.grey),),
-                                    SizedBox(width: 20,),
-                                    Text("${e.degree}",style: TextStyle(color: Colors.black),),
-                                  ],
-                                ),
-                                SizedBox(height: 10,),
-                                Row(
-                                  children: [
-                                    SizedBox(width: 10,),
-                                    Text("الفرع",style: TextStyle(color: Colors.grey),),
-                                    SizedBox(width: 20,),
-                                    Text("${e.branch}",style: TextStyle(color: Colors.black),),
-                                  ],
-                                ),
-                              ],
-                            )),
-                          ],
-                        ),
-                      ),
-                    ):Container()).toList(),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),*/
-            Directionality(
-              textDirection: TextDirection.rtl,
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 50),
-                child: Column(
-                  children: [
-                    ListTile(
-                      onTap: () {
-                        showModalBottomSheet<void>(
-                            isScrollControlled: true,
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SolidBottomSheet(
-                                  maxHeight: MediaQuery.of(context).size.height / 1.2,
-                                  minHeight: MediaQuery.of(context).size.height / 1.5,
-                                  headerBar: Container(
-                                    height: 50,
-                                    padding: EdgeInsets.only(right: 10,left: 10),
-                                    alignment: Alignment.centerRight,
-                                    child: Text("شروط قيد المدربين",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 20),),
-                                    color: Colors.white,
-                                  ), body: Container(
-                                color: Colors.white,
-                                child: Padding(
-                                  padding: EdgeInsets.all(32.0),
-                                  child: ListView(
-                                    children: [
-                                      Directionality(
-                                        textDirection:TextDirection.rtl,
-                                        child: Html(
-                                          data:'${getRefereesConditionsEntities?.data?.contents??""}',
-                                        ),
-                                      ),
-                                      SizedBox(height: 10,),
-                                    ],
-                                  ),
-                                ),
-                              ));
-                            });
-                      },
-                      leading: Container(
-                        width: 10,
-                        height: 50,
-                        color: Color(0xffE31E24),
-                      ),
-                      title: Text(
-                        "شروط قيد المدربين",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      trailing: Icon(Icons.arrow_forward_ios),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Directionality(
-              textDirection: TextDirection.rtl,
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 50),
-                child: Column(
-                  children: [
-                    ListTile(
-                      onTap: () {
-                        setState(() {
-                          showRules = !showRules;
-                          if (showTrainer) {
-                            showTrainer = !showTrainer;
-                          }
-                        });
-                      },
-                      leading: Container(
-                        width: 10,
-                        height: 50,
-                        color: Color(0xffE31E24),
-                      ),
-                      title: Text(
-                        "قواعد تصنيف المدرب",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      trailing: showRules?Icon(Icons.keyboard_arrow_down):Icon(Icons.arrow_forward_ios),
-                    ),
-                    ...getCoachesRulesEntities.data.map((e) =>  showRules ?InkWell(
-                      onTap: (){
-                        showModalBottomSheet<void>(
-                            isScrollControlled: true,
-                            context: context,
-                            builder: (BuildContext context) {
-                              return SolidBottomSheet(
-                                  maxHeight: MediaQuery.of(context).size.height / 1.2,
-                                  minHeight: MediaQuery.of(context).size.height / 1.5,
-                                  headerBar: Container(
-                                    height: 50,
-                                    alignment: Alignment.center,
-                                    child: Text("${e.title}",textAlign: TextAlign.center,style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 20),),
-                                    color: Colors.white,
-                                  ), body: Container(
-                                color: Colors.white,
-                                height: MediaQuery.of(context).size.height / 2,
-                                child:  Directionality(
-                                  textDirection: TextDirection.rtl,
-                                  child: Container(
-                                    padding: EdgeInsets.all(10),
-                                    child: ListView(
-                                      children: [
-                                        Html(data:"${e.contents}"),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ));
-                            });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        margin: EdgeInsets.only(right: 20),
-                        alignment: Alignment.centerRight,
-                        child: Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: ListTile(
-                            leading:Container(width: 10,height: 50,color: Color(0xffE31E24),),
-                            title: Text("${e.title}",style: TextStyle(color: Colors.black,fontSize: 15,fontWeight: FontWeight.w600),),
-                            trailing: Icon(Icons.arrow_forward_ios),
+            ListView(
+              children: [
+               widget.active  == RefreePageEnum.showRules?Container(): Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 50),
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            if (getRefereesConditionsEntitiesTrain.data ==
+                                null) {
+                              getData();
+                            } else {
+                              setState(() {
+                                if (widget.active ==
+                                    RefreePageEnum.showTrainer) {
+                                  widget.active = RefreePageEnum.none;
+                                } else {
+                                  widget.active = RefreePageEnum.showTrainer;
+                                }
+                                widget.onChange(widget.active);
+                              });
+                            }
+                          },
+                          child: widget.active == RefreePageEnum.showTrainer ? getContainerSelected(  "شروط قيد المدربين") : TileWidget(
+                            "شروط قيد المدربين",
                           ),
                         ),
-                      ),
-                    ):Container()),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                widget.active == RefreePageEnum.showTrainer
+                    ? Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: getBody(
+                            getRefereesConditionsEntitiesTrain.data.contents),
+                      )
+                    : Container(),
+                SizedBox(
+                  height:widget.active == RefreePageEnum.none? 20:0,
+                ),
+              widget.active == RefreePageEnum.showTrainer?Container():  Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 50),
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              if (widget.active == RefreePageEnum.showRules) {
+                                widget.active = RefreePageEnum.none;
+                              } else {
+                                widget.active = RefreePageEnum.showRules;
+                              }
+                              widget.onChange(widget.active);
+                            });
+                          },
+                          child: widget.active == RefreePageEnum.showRules?getContainerSelected("قواعد تصنيف المدرب"): TileWidget(
+                            "قواعد تصنيف المدرب",
+                          ),
+                        ),
+                        getCoachesRulesEntities.data.length == 0 &&
+                                widget.active == RefreePageEnum.showRules
+                            ? getNoDataWidget()
+                            : Column(
+                                children: [
+                                  ...getCoachesRulesEntities.data
+                                      .asMap()
+                                      .entries
+                                      .map((e) => widget.active ==
+                                              RefreePageEnum.showRules
+                                          ? Column(
+                                              children: [
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                InkWell(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      if (selectedIndex ==
+                                                          e.key) {
+                                                        selectedIndex = null;
+                                                      } else {
+                                                        selectedIndex = e.key;
+                                                      }
+                                                    });
+                                                  },
+                                                  child: TileWidget(
+                                                      "${e.value.title}"),
+                                                ),
+                                                selectedIndex == e.key
+                                                    ? Container(
+                                                  margin: EdgeInsets.only(top: 10),
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5)),
+                                                        child: getBody(
+                                                            e.value.contents),
+                                                      )
+                                                    : Container(),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                              ],
+                                            )
+                                          : Container()),
+                                ],
+                              )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
+            showProgress ? getLoadingContainer(context) : Container()
           ],
         ),
+      ),
+    );
+  }
+
+  getContainerSelected(String s) {
+    return Container(
+      alignment: Alignment.centerRight,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: staticColor,
+        ),
+        alignment: Alignment.center,
+        height: 50,
+        width: 150,
+        child: Text('$s',style: GoogleFonts.cairo(color: Colors.white,fontWeight: FontWeight.bold),),
       ),
     );
   }
